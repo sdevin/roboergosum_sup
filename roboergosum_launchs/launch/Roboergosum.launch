@@ -1,0 +1,7 @@
+<launch>
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/General.yaml" />
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/ActionManager.yaml" />
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Entities.yaml" />
+
+        <node name="action_manager" pkg="action_manager" type="action_manager" output="screen" />  <!-- Launch the action manager -->
+</launch>

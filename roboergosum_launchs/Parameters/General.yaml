@@ -1,0 +1,9 @@
+---
+roboergosum:
+    robotName: 'PR2_ROBOT'
+    toasterRobotName: 'pr2'
+    robotHands:
+        right: 'r_gripper_palm_link'
+        left: 'l_gripper_palm_link'
+    simu: true
+    waitActionServer: 10.0
