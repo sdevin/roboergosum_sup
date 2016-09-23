@@ -34,3 +34,6 @@
 *.files
 *.includes
 *.autosave
+
+#documentation
+*/doc/*
