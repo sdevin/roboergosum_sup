@@ -9,6 +9,9 @@
 
 #include "action_manager/virtual_action.h"
 
+/**
+ * @brief The Pick class
+ */
 class Pick: public VirtualAction{
 
 public:

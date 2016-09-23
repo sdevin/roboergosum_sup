@@ -1,3 +1,9 @@
+/************
+ *\author Sandra Devin (sdevin@laas.fr)
+ *
+ * Main class of the action manager
+ * **********/
+
 #include <action_manager/action_manager.h>
 
 ros::NodeHandle* node_;

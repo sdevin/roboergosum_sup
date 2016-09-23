@@ -1,3 +1,9 @@
+/************
+ * \author Sandra Devin (sdevin@laas.fr)
+ *
+ * Class of the pick action
+ * **********/
+
 #include "action_manager/Actions/pick.h"
 
 

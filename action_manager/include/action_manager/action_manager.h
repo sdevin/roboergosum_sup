@@ -1,7 +1,7 @@
 /************
  *\author Sandra Devin (sdevin@laas.fr)
  *
- * Main class of the action manager
+ * Virtual class to describe an action
  * **********/
 
 #ifndef ACTIONMANAGER_H
@@ -28,6 +28,9 @@
 
 typedef actionlib::SimpleActionServer<roboergosum_msgs::ActionManagerAction> Server;
 
+/**
+ * @brief The ActionManager class
+ */
 class ActionManager{
 public:
     ActionManager(std::string name);

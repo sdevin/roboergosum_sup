@@ -1,3 +1,9 @@
+/************
+ *\author Sandra Devin (sdevin@laas.fr)
+ *
+ * Virtual class to describe an action
+ * **********/
+
 #include <action_manager/virtual_action.h>
 
 
@@ -154,8 +160,7 @@ int VirtualAction::planGTP(std::string actionName, std::vector<gtp_ros_msg::Ag> 
 }
 
 /**
-* \brief /*
-Function which execute an action based on its GTP id
+* \brief Function which execute an action based on its GTP id
 * @param GTPActionId gtp id for the action
 * @param shouldOpen indicate if the gripper should be open before execution
 * @param object object involved in the action if there is
@@ -373,6 +378,7 @@ bool VirtualAction::isGripperEmpty(std::string arm){
 * \brief Function which puts an object in the hand of the robot
 * @param object the object to put
 * @param hand the hand to attach to (right or left)
+* @param gtpId id of the gtp task associated to the grasp
 */
 void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
 
@@ -397,9 +403,9 @@ void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
 
 }
 
-/*
-Function which remove an object from the hand of the robot
-    @object: the object to remove
+/**
+* \brief Function which remove an object from the hand of the robot
+* @param object the object to remove
 */
 void VirtualAction::RemoveFromHand(std::string object){
 

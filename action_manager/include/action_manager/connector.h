@@ -1,7 +1,7 @@
 /************
  *\author Sandra Devin (sdevin@laas.fr)
  *
- * Class which allow the action executor to connect to modules and keep informatio from an action to another
+ * Class for connection to others module
  * **********/
 
 #ifndef CONNECTOR_H
@@ -30,6 +30,9 @@
 
 typedef actionlib::SimpleActionServer<roboergosum_msgs::ActionManagerAction> Server;
 
+/**
+ * @brief The Connector class
+ */
 class Connector{
 public:
     Connector();

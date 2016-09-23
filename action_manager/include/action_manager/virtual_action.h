@@ -25,6 +25,9 @@ typedef actionlib::SimpleActionClient<pr2motion::Arm_Left_MoveAction> Client_Lef
 typedef actionlib::SimpleActionClient<pr2motion::Gripper_Right_OperateAction> Client_Right_Gripper;
 typedef actionlib::SimpleActionClient<pr2motion::Gripper_Left_OperateAction> Client_Left_Gripper;
 
+/**
+ * @brief The VirtualAction class
+ */
 class VirtualAction{
 public:
     VirtualAction(Connector* connector);

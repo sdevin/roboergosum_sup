@@ -1,8 +1,13 @@
+/************
+ *\author Sandra Devin (sdevin@laas.fr)
+ *
+ * Class for connection to others module
+ * **********/
+
 #include <action_manager/connector.h>
 
 /**
  * \brief Constructor of the class
- * @param action_server pointer to the action server
  * */
 Connector::Connector(){
     node_.getParam("/roboergosum/robotName", robotName_);
