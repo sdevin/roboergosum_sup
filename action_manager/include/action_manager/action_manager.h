@@ -11,6 +11,7 @@
 #include "action_manager/virtual_action.h"
 #include "action_manager/connector.h"
 #include "action_manager/Actions/pick.h"
+#include "action_manager/Actions/place.h"
 #include <toaster_msgs/Fact.h>
 #include <toaster_msgs/FactList.h>
 #include <std_msgs/Bool.h>

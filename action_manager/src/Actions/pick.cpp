@@ -109,7 +109,7 @@ bool Pick::exec(){
 /**
  * \brief Post-conditions for the pick action
  *
- * Check that the gripper of the robot is not completly closed (meaning that the robot misses the object, not in s)
+ * Check that the gripper of the robot is not completly closed (meaning that the robot misses the object, not in simu)
  *
  * \return true if the post-conditions are checked, else return false
  * */

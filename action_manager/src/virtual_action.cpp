@@ -25,6 +25,7 @@ VirtualAction::VirtualAction(Connector* connector){
 /**
 * \brief Function which return true if an object is a manipulable object (based on parameters)
 * @param object the tested object
+* \return true if the object is a manipulable object
 */
 bool VirtualAction::isManipulableObject(std::string object){
 
@@ -42,6 +43,7 @@ bool VirtualAction::isManipulableObject(std::string object){
 /**
 * \brief Function which return true if an object is a support object (based on parameters)
 * @param support the tested object
+* \return true if the object is a support object
 */
 bool VirtualAction::isSupportObject(std::string support){
 
@@ -59,6 +61,7 @@ bool VirtualAction::isSupportObject(std::string support){
 /**
 * \brief Function which return true if an object is a container object (based on parameters)
 * @param container the tested object
+* \return true if the object is a container object
 */
 bool VirtualAction::isContainerObject(std::string container){
 
@@ -74,8 +77,9 @@ bool VirtualAction::isContainerObject(std::string container){
 }
 
 /**
-* \brief Function which return true if some facts are on the databes
+* \brief Function which return true if some facts are on the databases
 * @param facts the facts
+* \return true if the tested facts are in the robot table of the database
 */
 bool VirtualAction::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
 
@@ -95,6 +99,7 @@ bool VirtualAction::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
 
 /**
 * \brief Function which update GTP world state with TOASTER
+* \return true if success
 */
 bool VirtualAction::updateGTP(){
 
@@ -121,6 +126,7 @@ bool VirtualAction::updateGTP(){
 * @param objects objects involved in the action
 * @param datas datas involved in the action
 * @param points points involved in the action
+* \return the id of the task return by gtp, -1 if failure
 */
 int VirtualAction::planGTP(std::string actionName, std::vector<gtp_ros_msg::Ag> agents, std::vector<gtp_ros_msg::Obj> objects, std::vector<gtp_ros_msg::Data> datas, std::vector<gtp_ros_msg::Points> points){
 
@@ -164,6 +170,7 @@ int VirtualAction::planGTP(std::string actionName, std::vector<gtp_ros_msg::Ag> 
 * @param GTPActionId gtp id for the action
 * @param shouldOpen indicate if the gripper should be open before execution
 * @param object object involved in the action if there is
+* \return true if success
 */
 bool VirtualAction::execGTPAction(int GTPActionId, bool shouldOpen, std::string object){
 
@@ -219,6 +226,7 @@ bool VirtualAction::execGTPAction(int GTPActionId, bool shouldOpen, std::string 
 * @param GTPActionId gtp id for the action
 * @param actionSubId id of the trajectory
 * @param armId id of the arm to move
+* \return true if success
 */
 bool VirtualAction::executeTrajectory(int GTPActionId, int actionSubId, int armId){
 
@@ -278,6 +286,7 @@ bool VirtualAction::executeTrajectory(int GTPActionId, int actionSubId, int armI
 * \brief Function to open or close a gripper
 * @param armId id of the arm of the gripper to close
 * @param open true if to open the gripper, false to close
+* \return true if success
 */
 bool VirtualAction::moveGripper(int armId, bool open){
 
@@ -342,6 +351,7 @@ bool VirtualAction::moveGripper(int armId, bool open){
 /**
 * \brief Check if the gripper is completely closed in order to know if it is empty or not
 * @param arm arm of the gripper we want to check
+* \return true if the gripper is completly closed
 */
 bool VirtualAction::isGripperEmpty(std::string arm){
 
@@ -416,6 +426,85 @@ void VirtualAction::RemoveFromHand(std::string object){
     srv.request.objectId = object;
     if (!client.call(srv)){
      ROS_ERROR("[action_manager] Failed to call service pdg/remove_from_hand");
+    }
+
+}
+
+/**
+* \brief Function which add to gtp the id of the grasp for the object the robot has in hand
+* @param id id of the grasp
+* \return true if success
+*/
+bool VirtualAction::addGTPAttachment(int id){
+
+    // send goal to GTP
+    gtp_ros_msg::requestGoal goal;
+    goal.req.requestType = "addAttachemnt";
+    goal.req.loadAction.actionId = id;
+    goal.req.loadAction.alternativeId = 0;
+    connector_->acGTP_->sendGoal(goal);
+
+    //wait for the action to return
+    bool finishedBeforeTimeout = connector_->acGTP_->waitForResult(ros::Duration(connector_->waitActionServer_));
+
+    if (!finishedBeforeTimeout){
+      ROS_INFO("[action_manager] Failed to add attachment to GTP: Action did not finish before the time out.");
+      return false;
+    }
+
+     return true;
+}
+
+/**
+* \brief Function which puts an object on a support
+* @param object the object to put
+* @param support the support where to place the object
+*/
+void VirtualAction::PutOnSupport(std::string object, std::string support){
+
+    ros::ServiceClient client;
+    if(connector_->simu_){
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    }else{
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    }
+
+    double objectHeight, supportHeight;
+    std::string objectHeightTopic = "entities/objectsHeight/bottom/";
+    objectHeightTopic = objectHeightTopic + object;
+    std::string supportHeightTopic = "entities/objectsHeight/top/";
+    supportHeightTopic = supportHeightTopic + support;
+    node_.getParam(objectHeightTopic, objectHeight);
+    node_.getParam(supportHeightTopic, supportHeight);
+    toaster_msgs::ObjectListStamped objectList;
+    double x,y,z;
+    try{
+    objectList  = *(ros::topic::waitForMessage<toaster_msgs::ObjectListStamped>("pdg/objectList",ros::Duration(1)));
+    for(std::vector<toaster_msgs::Object>::iterator it = objectList.objectList.begin(); it != objectList.objectList.end(); it++){
+     if(it->meEntity.id == support){
+        x = it->meEntity.pose.position.x;
+        y = it->meEntity.pose.position.y;
+        z = it->meEntity.pose.position.z;
+        break;
+     }
+    }
+    z = z + objectHeight + supportHeight;
+    toaster_msgs::SetEntityPose srv;
+    srv.request.id = object;
+    srv.request.type = "object";
+    srv.request.pose.position.x = x;
+    srv.request.pose.position.y = y;
+    srv.request.pose.position.z = z;
+    srv.request.pose.orientation.x = 0.0;
+    srv.request.pose.orientation.y = 0.0;
+    srv.request.pose.orientation.z = 0.0;
+    srv.request.pose.orientation.w = 1.0;
+    if (!client.call(srv)){
+     ROS_ERROR("Failed to call service pdg/set_entity_pose");
+     }
+    }
+    catch(const std::exception & e){
+    ROS_WARN("[action_executor] Failed to read %s pose from toaster", support.c_str());
     }
 
 }

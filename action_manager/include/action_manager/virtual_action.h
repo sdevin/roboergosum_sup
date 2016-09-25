@@ -12,8 +12,10 @@
 #include "toaster_msgs/ExecuteDB.h"
 #include <gtp_ros_msg/requestAction.h>
 #include "toaster_msgs/RobotListStamped.h"
+#include "toaster_msgs/ObjectListStamped.h"
 #include "toaster_msgs/PutInHand.h"
 #include "toaster_msgs/RemoveFromHand.h"
+#include "toaster_msgs/SetEntityPose.h"
 
 #include <iostream>
 #include <string>
@@ -78,6 +80,8 @@ protected:
    bool isGripperEmpty(std::string arm);
    void PutInHand(std::string object, std::string hand, int gtpId);
    void RemoveFromHand(std::string object);
+   bool addGTPAttachment(int id);
+   void PutOnSupport(std::string object, std::string support);
 
 };
 

@@ -144,11 +144,18 @@ void ActionManager::execute(const roboergosum_msgs::ActionManagerGoalConstPtr& g
 /**
  * \brief Allow to create a virtual action based on its name
  * @param action the action to execute
+ * \return the virtual action initialized
  * */
 VirtualAction* ActionManager::initializeAction(roboergosum_msgs::Action action) {
     VirtualAction* act = NULL;
 
-    ROS_WARN("[action_manager] Unknown action");
+    if(action.name == "pick"){
+        act = new Pick(action, connector_);
+    }else if(action.name == "place"){
+        act = new Place(action, connector_);
+    }else{
+        ROS_WARN("[action_manager] Unknown action");
+    }
 
     return act;
 }
