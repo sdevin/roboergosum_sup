@@ -34,7 +34,7 @@ Place::Place(roboergosum_msgs::Action action, Connector* connector): VirtualActi
  * */
 bool Place::preconditions(){
 
-    //First we check if the object is a known manipulable object
+    //First we check if the object is a known support object
     if(!isSupportObject(support_)){
       ROS_WARN("[action_executor] The support where to place is not a known support object");
       return false;
@@ -106,8 +106,6 @@ bool Place::plan(){
 
     if(GTPActionId_ == -1){
         return false;
-    }else{
-        return true;
     }
 
     return true;

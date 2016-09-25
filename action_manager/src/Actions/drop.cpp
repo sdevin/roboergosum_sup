@@ -78,7 +78,7 @@ bool Drop::plan(){
         }
     }
 
-    //Now we can plan the place
+    //Now we can plan the drop
     std::vector<gtp_ros_msg::Ag> agents;
     gtp_ros_msg::Ag agent;
     agent.actionKey = "mainAgent";
@@ -106,8 +106,6 @@ bool Drop::plan(){
 
     if(GTPActionId_ == -1){
         return false;
-    }else{
-        return true;
     }
 
     return true;

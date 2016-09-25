@@ -81,10 +81,12 @@ protected:
    bool isGripperEmpty(std::string arm);
    void PutInHand(std::string object, std::string hand, int gtpId);
    void RemoveFromHand(std::string object);
+   void RemoveFromHumanHand(std::string object);
    void PutInHumanHand(std::string object, std::string agent);
    bool addGTPAttachment(int id);
    void PutOnSupport(std::string object, std::string support);
    void PutInContainer(std::string object, std::string container);
+   void PutObjectInFrontRobot(std::string object);
 
 };
 

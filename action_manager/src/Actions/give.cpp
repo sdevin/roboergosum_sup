@@ -1,7 +1,7 @@
 /************
  * \author Sandra Devin (sdevin@laas.fr)
  *
- * Class of the give action
+ * Class of the give action (handover from robot to human)
  * **********/
 
 #include "action_manager/Actions/give.h"
@@ -29,14 +29,14 @@ Give::Give(roboergosum_msgs::Action action, Connector* connector): VirtualAction
  *
  * For the give action the preconditions checked are:
  *  - the receiver should be an agent
- *  - the agent should be reachable by the robot
+ *  - the receiver should be reachable by the robot
  *  - the robot should have the object in hand
  *
  * \return true if the preconditions are checked, else return false
  * */
 bool Give::preconditions(){
 
-    //First we check if the object is a known manipulable object
+    //First we check if the receiver is a knwon agent
     if(!isAgent(receiver_)){
       ROS_WARN("[action_executor] The receiver of the give action is not an known agent");
       return false;
@@ -61,7 +61,7 @@ bool Give::preconditions(){
  * \brief Plan for the give action
  *
  * Verify if we need to add the graps of the pick.
- * Ask to gtp a solution to place the object (moveTo a give configuration)
+ * Ask to gtp a solution to give the object (moveTo a give configuration)
  *
  * \return true if the planning is a success, else return false
  * */
@@ -82,29 +82,30 @@ bool Give::plan(){
 
 
     //We look in which arm the robot has the object
-    std::string confName;
-    if(armGrasp_ = 0){
+    std::string confName, arm;
+    if(connector_->armGrasp_ = 0){
         confName = confNameRight_;
-    }else if(armGrasp_ = 1){
+        arm = "right";
+    }else if(connector_->armGrasp_ = 1){
         confName = confNameLeft_;
+        arm = "left";
     }else{
         ROS_WARN("[action_manager] Give failed in planning: impossible to get the robot arm where is the object");
     }
 
 
-    //Now we can plan the place
+    //Now we can plan the action
     std::vector<gtp_ros_msg::Ag> agents;
     gtp_ros_msg::Ag agent;
     agent.actionKey = "mainAgent";
     agent.agentName = robotName_;
     agents.push_back(agent);
     std::vector<gtp_ros_msg::Obj> objects;
-    objects.push_back(object);
     std::vector<gtp_ros_msg::Points> points;
     std::vector<gtp_ros_msg::Data> datas;
     gtp_ros_msg::Data data;
     data.dataKey = "hand";
-    data.dataValue = "right";
+    data.dataValue = arm;
     datas.push_back(data);
     data.dataKey = "confName";
     data.dataValue = confName;
@@ -114,8 +115,6 @@ bool Give::plan(){
 
     if(GTPActionId_ == -1){
         return false;
-    }else{
-        return true;
     }
 
     return true;
@@ -130,7 +129,7 @@ bool Give::plan(){
  * */
 bool Give::exec(){
 
-    return executeTrajectory(GTPActionId_, 0, armGrasp_);
+    return executeTrajectory(GTPActionId_, 0, connector_->armGrasp_);
 
 }
 

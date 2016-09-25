@@ -1,7 +1,7 @@
 /************
  *\author Sandra Devin (sdevin@laas.fr)
  *
- * Class of the give action
+ * Class of the give action (handover from robot to human)
  * **********/
 
 #ifndef GIVE_H

@@ -8,3 +8,5 @@ action_manager:
     gripperThreshold: 0.01
     handoverConfigurationRight: 'RightTestNo'
     handoverConfigurationLeft: 'LeftTestNo'
+    putInFrontObject: 'TABLE_4'
+    putInFrontHeigth: 1.5

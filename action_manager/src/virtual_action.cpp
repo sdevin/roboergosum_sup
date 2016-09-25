@@ -455,6 +455,23 @@ void VirtualAction::RemoveFromHand(std::string object){
 }
 
 /**
+* \brief Function which remove an object from the hand of a human
+* @param object the object to remove
+*/
+void VirtualAction::RemoveFromHumanHand(std::string object){
+
+   ros::ServiceClient client = node_.serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
+
+    //remove the object from the hand of the robot
+    toaster_msgs::RemoveFromHand srv;
+    srv.request.objectId = object;
+    if (!client.call(srv)){
+     ROS_ERROR("[action_manager] Failed to call service pdg/remove_from_hand");
+    }
+
+}
+
+/**
 * \brief Function which put an object in a human hand
 * @param object the object to in hand
 * @param agent the human who should have the object in hand
@@ -597,6 +614,59 @@ void VirtualAction::PutInContainer(std::string object, std::string container){
     catch(const std::exception & e){
     ROS_WARN("[action_manager] Failed to read %s pose from toaster", container.c_str());
     }
+
+}
+
+/**
+* \brief Function which put an object in front of the robot
+* @param object the object to put
+* \todo find a better way to do it
+*/
+void VirtualAction::PutObjectInFrontRobot(std::string object){
+
+    //for now we place the object above a reference object
+    ros::ServiceClient client;
+    if(connector_->simu_){
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    }else{
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    }
+
+    std::string referenceObject;
+    double height;
+    node_.getParam("action_manager/putInFrontHeigth", height);
+    node_.getParam("action_manager/putInFrontObject", referenceObject);
+    double x,y,z;
+    toaster_msgs::ObjectListStamped objectList;
+    try{
+    objectList  = *(ros::topic::waitForMessage<toaster_msgs::ObjectListStamped>("pdg/objectList",ros::Duration(1)));
+    for(std::vector<toaster_msgs::Object>::iterator it = objectList.objectList.begin(); it != objectList.objectList.end(); it++){
+     if(it->meEntity.id == referenceObject){
+        x = it->meEntity.pose.position.x;
+        y = it->meEntity.pose.position.y;
+        z = it->meEntity.pose.position.z;
+        break;
+     }
+    }
+    z = z + height;
+    toaster_msgs::SetEntityPose srv;
+    srv.request.id = object;
+    srv.request.type = "object";
+    srv.request.pose.position.x = x;
+    srv.request.pose.position.y = y;
+    srv.request.pose.position.z = z;
+    srv.request.pose.orientation.x = 0.0;
+    srv.request.pose.orientation.y = 0.0;
+    srv.request.pose.orientation.z = 0.0;
+    srv.request.pose.orientation.w = 1.0;
+    if (!client.call(srv)){
+     ROS_ERROR("Failed to call service pdg/set_entity_pose");
+     }
+    }
+    catch(const std::exception & e){
+    ROS_WARN("[action_manager] Failed to read %s pose from toaster", referenceObject.c_str());
+    }
+
 
 }
 
