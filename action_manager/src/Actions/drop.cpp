@@ -28,7 +28,7 @@ Drop::Drop(roboergosum_msgs::Action action, Connector* connector): VirtualAction
  * For the place action the preconditions checked are:
  *  - the container should be a container object
  *  - the container should be reachable by the robot
- *  - the robot should not have the object in hand
+ *  - the robot should have the object in hand
  *
  * \return true if the preconditions are checked, else return false
  * */

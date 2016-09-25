@@ -15,6 +15,7 @@ Connector::Connector(){
     node_.getParam("/entities/objects", manipulableObjects_);
     node_.getParam("/entities/supports", supportObjects_);
     node_.getParam("/entities/containers", containerObjects_);
+    node_.getParam("/entities/agents", agentsList_);
     node_.getParam("/roboergosum/waitActionServer", waitActionServer_);
     node_.getParam("/action_manager/nbPlanMaxGTP", nbPlanMax_);
 

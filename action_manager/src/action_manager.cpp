@@ -153,6 +153,10 @@ VirtualAction* ActionManager::initializeAction(roboergosum_msgs::Action action) 
         act = new Pick(action, connector_);
     }else if(action.name == "place"){
         act = new Place(action, connector_);
+    }else if(action.name == "drop"){
+        act = new Drop(action, connector_);
+    }else if(action.name == "give"){
+        act = new Give(action, connector_);
     }else{
         ROS_WARN("[action_manager] Unknown action");
     }

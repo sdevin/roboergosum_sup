@@ -44,10 +44,12 @@ public:
     std::vector<std::string> manipulableObjects_; /**< list of manipulable objects*/
     std::vector<std::string> supportObjects_; /**< list of support objects*/
     std::vector<std::string> containerObjects_; /**< list of container objects*/
+    std::vector<std::string> agentsList_; /**< list of existing agents*/
     int previousGTPId_; /**< gtp id of the previous action*/
     int nbPlanMax_; /**< nb of time we should try to call gtp to get a plan*/
     double waitActionServer_; /**< time we should wait for an action server*/
     int idGrasp_; /**< id of the gtp task where the robot grasps the last object*/
+    int armGrasp_; /**< 0 if the robot has an object in the right hand, 1 in the left, -1 no object*/
 
     bool gripperRightOpen_; /**< flag which is true if the robot right gripper is open*/
     bool gripperLeftOpen_; /**< flag which is true if the robot left gripper is open*/

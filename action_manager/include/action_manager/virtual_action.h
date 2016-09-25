@@ -71,6 +71,7 @@ protected:
    bool isManipulableObject(std::string object);
    bool isSupportObject(std::string support);
    bool isContainerObject(std::string container);
+   bool isAgent(std::string agent);
    bool AreFactsInDB(std::vector<toaster_msgs::Fact> precs);
    bool updateGTP();
    int  planGTP(std::string actionName, std::vector<gtp_ros_msg::Ag> agents, std::vector<gtp_ros_msg::Obj> objects, std::vector<gtp_ros_msg::Data> datas, std::vector<gtp_ros_msg::Points> points);
@@ -80,6 +81,7 @@ protected:
    bool isGripperEmpty(std::string arm);
    void PutInHand(std::string object, std::string hand, int gtpId);
    void RemoveFromHand(std::string object);
+   void PutInHumanHand(std::string object, std::string agent);
    bool addGTPAttachment(int id);
    void PutOnSupport(std::string object, std::string support);
    void PutInContainer(std::string object, std::string container);

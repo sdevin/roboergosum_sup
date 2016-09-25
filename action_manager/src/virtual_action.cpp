@@ -77,6 +77,25 @@ bool VirtualAction::isContainerObject(std::string container){
 }
 
 /**
+* \brief Function which return true if the given parameter is an agent (based on parameters)
+* @param agent the tested parameter
+* \return true if the parameter is an agent
+*/
+bool VirtualAction::isAgent(std::string agent){
+
+    //We check if the object is in the list of container objects
+    for(std::vector<std::string>::iterator it = connector_->agentsList_.begin(); it != connector_->agentsList_.end(); it++){
+       if(*it == agent){
+          return true;
+       }
+    }
+
+   return false;
+
+}
+
+
+/**
 * \brief Function which return true if some facts are on the databases
 * @param facts the facts
 * \return true if the tested facts are in the robot table of the database
@@ -392,7 +411,7 @@ bool VirtualAction::isGripperEmpty(std::string arm){
 */
 void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
 
-   ros::ServiceClient client = node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
+    ros::ServiceClient client = node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
 
     //put the object in the hand of the robot
     std::string robotHand;
@@ -408,9 +427,13 @@ void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
     if (!client.call(srv)){
      ROS_ERROR("[action_manager] Failed to call service pdg/put_in_hand");
     }
-    //remember the gtp id of the grasp
+    //remember the gtp id of the grasp and the arm
     connector_->idGrasp_ = gtpId;
-
+    if(hand == "right"){
+       connector_->armGrasp_ = 0;
+    }else{
+       connector_->armGrasp_ = 1;
+    }
 }
 
 /**
@@ -427,7 +450,29 @@ void VirtualAction::RemoveFromHand(std::string object){
     if (!client.call(srv)){
      ROS_ERROR("[action_manager] Failed to call service pdg/remove_from_hand");
     }
+    connector_->armGrasp_ = -1;
 
+}
+
+/**
+* \brief Function which put an object in a human hand
+* @param object the object to in hand
+* @param agent the human who should have the object in hand
+*/
+void VirtualAction::PutInHumanHand(std::string object, std::string agent){
+
+    ros::ServiceClient client = node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
+
+    //put the object in the hand of the robot
+    std::string humanHand;
+    node_.getParam("/humanMonitoring/humanRightHand/", humanHand);
+    toaster_msgs::PutInHand srv;
+    srv.request.objectId = object;
+    srv.request.agentId = agent;
+    srv.request.jointName = humanHand;
+    if (!client.call(srv)){
+     ROS_ERROR("[action_manager] Failed to call service pdg/put_in_hand");
+    }
 }
 
 /**
