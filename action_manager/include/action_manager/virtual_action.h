@@ -28,7 +28,7 @@ typedef actionlib::SimpleActionClient<pr2motion::Gripper_Right_OperateAction> Cl
 typedef actionlib::SimpleActionClient<pr2motion::Gripper_Left_OperateAction> Client_Left_Gripper;
 
 /**
- * @brief The VirtualAction class
+ * @brief virtual class from which each action class inherits
  */
 class VirtualAction{
 public:

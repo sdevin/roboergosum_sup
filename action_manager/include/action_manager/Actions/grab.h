@@ -10,7 +10,7 @@
 #include "action_manager/virtual_action.h"
 
 /**
- * @brief The Grab class
+ * @brief Class of the grab action
  */
 class Grab: public VirtualAction{
 

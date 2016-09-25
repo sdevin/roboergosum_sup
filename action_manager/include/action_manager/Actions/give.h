@@ -10,7 +10,7 @@
 #include "action_manager/virtual_action.h"
 
 /**
- * @brief The Give class
+ * @brief Class of the give action
  */
 class Give: public VirtualAction{
 

@@ -31,7 +31,7 @@
 typedef actionlib::SimpleActionServer<roboergosum_msgs::ActionManagerAction> Server;
 
 /**
- * @brief The Connector class
+ * @brief contains the connection to other modules and informations to keep from an action to another
  */
 class Connector{
 public:

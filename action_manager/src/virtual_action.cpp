@@ -482,7 +482,7 @@ void VirtualAction::PutInHumanHand(std::string object, std::string agent){
 
     //put the object in the hand of the robot
     std::string humanHand;
-    node_.getParam("/humanMonitoring/humanRightHand/", humanHand);
+    node_.getParam("/roboergosum/humanRightHand/", humanHand);
     toaster_msgs::PutInHand srv;
     srv.request.objectId = object;
     srv.request.agentId = agent;

@@ -10,7 +10,7 @@
 #include "action_manager/virtual_action.h"
 
 /**
- * @brief The Drop class
+ * @brief Class of the drop action
  */
 class Drop: public VirtualAction{
 

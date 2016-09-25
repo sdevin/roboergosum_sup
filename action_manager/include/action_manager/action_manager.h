@@ -1,7 +1,7 @@
-/************
+/**
  *\author Sandra Devin (sdevin@laas.fr)
  *
- * Virtual class to describe an action
+ * Main class of the node
  * **********/
 
 #ifndef ACTIONMANAGER_H
@@ -33,7 +33,7 @@
 typedef actionlib::SimpleActionServer<roboergosum_msgs::ActionManagerAction> Server;
 
 /**
- * @brief The ActionManager class
+ * @brief main class of the node, contains the action server.
  */
 class ActionManager{
 public:

@@ -10,7 +10,7 @@
 #include "action_manager/virtual_action.h"
 
 /**
- * @brief The Place class
+ * @brief Class of the place action
  */
 class Place: public VirtualAction{
 
