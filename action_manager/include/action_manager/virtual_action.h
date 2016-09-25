@@ -82,6 +82,7 @@ protected:
    void RemoveFromHand(std::string object);
    bool addGTPAttachment(int id);
    void PutOnSupport(std::string object, std::string support);
+   void PutInContainer(std::string object, std::string container);
 
 };
 

@@ -504,7 +504,53 @@ void VirtualAction::PutOnSupport(std::string object, std::string support){
      }
     }
     catch(const std::exception & e){
-    ROS_WARN("[action_executor] Failed to read %s pose from toaster", support.c_str());
+    ROS_WARN("[action_manager] Failed to read %s pose from toaster", support.c_str());
+    }
+
+}
+
+/**
+* \brief Function which puts an object in a container
+* @param object the object to put
+* @param container the container where to place the object
+*/
+void VirtualAction::PutInContainer(std::string object, std::string container){
+
+    ros::ServiceClient client;
+    if(connector_->simu_){
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    }else{
+    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    }
+
+    toaster_msgs::ObjectListStamped objectList;
+    double x,y,z;
+    try{
+    objectList  = *(ros::topic::waitForMessage<toaster_msgs::ObjectListStamped>("pdg/objectList",ros::Duration(1)));
+    for(std::vector<toaster_msgs::Object>::iterator it = objectList.objectList.begin(); it != objectList.objectList.end(); it++){
+     if(it->meEntity.id == container){
+        x = it->meEntity.pose.position.x;
+        y = it->meEntity.pose.position.y;
+        z = it->meEntity.pose.position.z;
+        break;
+     }
+    }
+    toaster_msgs::SetEntityPose srv;
+    srv.request.id = object;
+    srv.request.type = "object";
+    srv.request.pose.position.x = x;
+    srv.request.pose.position.y = y;
+    srv.request.pose.position.z = z;
+    srv.request.pose.orientation.x = 0.0;
+    srv.request.pose.orientation.y = 0.0;
+    srv.request.pose.orientation.z = 0.0;
+    srv.request.pose.orientation.w = 1.0;
+    if (!client.call(srv)){
+     ROS_ERROR("Failed to call service pdg/set_entity_pose");
+     }
+    }
+    catch(const std::exception & e){
+    ROS_WARN("[action_manager] Failed to read %s pose from toaster", container.c_str());
     }
 
 }

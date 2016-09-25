@@ -12,6 +12,7 @@
 #include "action_manager/connector.h"
 #include "action_manager/Actions/pick.h"
 #include "action_manager/Actions/place.h"
+#include "action_manager/Actions/drop.h"
 #include <toaster_msgs/Fact.h>
 #include <toaster_msgs/FactList.h>
 #include <std_msgs/Bool.h>
