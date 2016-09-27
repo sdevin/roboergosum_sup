@@ -15,6 +15,11 @@ add_message_files(
    Action.msg
 )
 
+add_service_files(
+  FILES
+  HumanAction.srv
+)
+
 add_action_files(
    FILES
    ActionManager.action
