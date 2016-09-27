@@ -13,7 +13,7 @@
  * @param connector pointer to the connector object
  * */
 Grab::Grab(roboergosum_msgs::Action action, Connector* connector): VirtualAction(connector){
-    //
+
     if(action.parameters.size() == 2){
         object_ = action.parameters[0];
         giver_ = action.parameters[1];

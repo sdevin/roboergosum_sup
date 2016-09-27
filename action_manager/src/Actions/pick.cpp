@@ -13,7 +13,7 @@
  * @param connector pointer to the connector object
  * */
 Pick::Pick(roboergosum_msgs::Action action, Connector* connector): VirtualAction(connector){
-    //
+
     if(action.parameters.size() == 1){
         object_ = action.parameters[0];
     }else{

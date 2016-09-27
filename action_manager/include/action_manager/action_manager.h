@@ -42,7 +42,6 @@ public:
     std::string robotName_; /**< the name of the robot*/
     bool simu_; /**< flag which is true of working in simulation*/
 protected:
-    ros::NodeHandle node_;/**< node handle*/
     roboergosum_msgs::ActionManagerFeedback feedback_; /**< feedback of the action serveur*/
     roboergosum_msgs::ActionManagerResult result_; /**< result of the action serveur*/
     Server action_server_; /**< the action serveur*/

@@ -6,7 +6,6 @@
 
 #include <action_manager/action_manager.h>
 
-ros::NodeHandle* node_;
 Connector* connector_;
 
 /**
@@ -14,7 +13,7 @@ Connector* connector_;
  * @param name the name of the action server name
  * */
 ActionManager::ActionManager(std::string name):
-action_server_(node_, name, 
+action_server_(connector_->node_, name,
     boost::bind(&ActionManager::execute,this, _1), false)
  {
     action_server_.start();
@@ -186,15 +185,13 @@ void resetGTPIdCallback(const std_msgs::Bool::ConstPtr& msg){
 int main (int argc, char **argv)
 {
   ros::init(argc, argv, "action_manager");
-  ros::NodeHandle node;
-  node_ = &node;
 
   ROS_INFO("[action_manager] Init action_manager");
 
   Connector connector;
   connector_ = &connector;
 
-  ros::Subscriber sub = node.subscribe("action_manager/resetGTPId", 1, resetGTPIdCallback);
+  ros::Subscriber sub = connector_->node_.subscribe("action_manager/resetGTPId", 1, resetGTPIdCallback);
 
   ActionManager executor("roboergosum/action_manager");
 

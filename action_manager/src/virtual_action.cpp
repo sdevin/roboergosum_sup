@@ -15,7 +15,7 @@
 VirtualAction::VirtualAction(Connector* connector){
 
     connector_ = connector;
-    node_.getParam("/action_manager/shouldUseRightHand", shouldUseRightHand_);
+    connector_->node_.getParam("/action_manager/shouldUseRightHand", shouldUseRightHand_);
     robotName_ = connector_->robotName_;
     simu_ = connector_->simu_;
     gripperEmpty_ = false;
@@ -102,7 +102,7 @@ bool VirtualAction::isAgent(std::string agent){
 */
 bool VirtualAction::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
 
-    ros::ServiceClient client = node_.serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
+    ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
     toaster_msgs::ExecuteDB srv;
     srv.request.command = "ARE_IN_TABLE";
     srv.request.agent = robotName_;
@@ -378,8 +378,8 @@ bool VirtualAction::isGripperEmpty(std::string arm){
     double gripperThreshold;
     std::string gripperTopic = "action_manager/gripperJoint/";
     gripperTopic = gripperTopic + arm;
-    node_.getParam(gripperTopic, gripperJoint);
-    node_.getParam("action_manager/gripperThreshold", gripperThreshold);
+    connector_->node_.getParam(gripperTopic, gripperJoint);
+    connector_->node_.getParam("action_manager/gripperThreshold", gripperThreshold);
     toaster_msgs::RobotListStamped list;
     try{
         list  = *(ros::topic::waitForMessage<toaster_msgs::RobotListStamped>("pdg/robotList",ros::Duration(1)));
@@ -411,15 +411,15 @@ bool VirtualAction::isGripperEmpty(std::string arm){
 */
 void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
 
-    ros::ServiceClient client = node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
+    ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
 
     //put the object in the hand of the robot
     std::string robotHand;
     std::string handTopic = "/roboergosum/robotHands/";
     handTopic = handTopic + hand;
-    node_.getParam(handTopic, robotHand);
+    connector_->node_.getParam(handTopic, robotHand);
     std::string robotToasterName;
-    node_.getParam("roergosum/toasterRobotName", robotToasterName);
+    connector_->node_.getParam("roergosum/toasterRobotName", robotToasterName);
     toaster_msgs::PutInHand srv;
     srv.request.objectId = object;
     srv.request.agentId = robotToasterName;
@@ -442,7 +442,7 @@ void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
 */
 void VirtualAction::RemoveFromHand(std::string object){
 
-   ros::ServiceClient client = node_.serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
+   ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
 
     //remove the object from the hand of the robot
     toaster_msgs::RemoveFromHand srv;
@@ -460,7 +460,7 @@ void VirtualAction::RemoveFromHand(std::string object){
 */
 void VirtualAction::RemoveFromHumanHand(std::string object){
 
-   ros::ServiceClient client = node_.serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
+   ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
 
     //remove the object from the hand of the robot
     toaster_msgs::RemoveFromHand srv;
@@ -478,11 +478,11 @@ void VirtualAction::RemoveFromHumanHand(std::string object){
 */
 void VirtualAction::PutInHumanHand(std::string object, std::string agent){
 
-    ros::ServiceClient client = node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
+    ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
 
     //put the object in the hand of the robot
     std::string humanHand;
-    node_.getParam("/roboergosum/humanRightHand/", humanHand);
+    connector_->node_.getParam("/roboergosum/humanRightHand/", humanHand);
     toaster_msgs::PutInHand srv;
     srv.request.objectId = object;
     srv.request.agentId = agent;
@@ -526,9 +526,9 @@ void VirtualAction::PutOnSupport(std::string object, std::string support){
 
     ros::ServiceClient client;
     if(connector_->simu_){
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
     }else{
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
     }
 
     double objectHeight, supportHeight;
@@ -536,8 +536,8 @@ void VirtualAction::PutOnSupport(std::string object, std::string support){
     objectHeightTopic = objectHeightTopic + object;
     std::string supportHeightTopic = "entities/objectsHeight/top/";
     supportHeightTopic = supportHeightTopic + support;
-    node_.getParam(objectHeightTopic, objectHeight);
-    node_.getParam(supportHeightTopic, supportHeight);
+    connector_->node_.getParam(objectHeightTopic, objectHeight);
+    connector_->node_.getParam(supportHeightTopic, supportHeight);
     toaster_msgs::ObjectListStamped objectList;
     double x,y,z;
     try{
@@ -580,9 +580,9 @@ void VirtualAction::PutInContainer(std::string object, std::string container){
 
     ros::ServiceClient client;
     if(connector_->simu_){
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
     }else{
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
     }
 
     toaster_msgs::ObjectListStamped objectList;
@@ -627,15 +627,15 @@ void VirtualAction::PutObjectInFrontRobot(std::string object){
     //for now we place the object above a reference object
     ros::ServiceClient client;
     if(connector_->simu_){
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
     }else{
-    client = node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    client = connector_->node_.serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
     }
 
     std::string referenceObject;
     double height;
-    node_.getParam("action_manager/putInFrontHeigth", height);
-    node_.getParam("action_manager/putInFrontObject", referenceObject);
+    connector_->node_.getParam("action_manager/putInFrontHeigth", height);
+    connector_->node_.getParam("action_manager/putInFrontObject", referenceObject);
     double x,y,z;
     toaster_msgs::ObjectListStamped objectList;
     try{

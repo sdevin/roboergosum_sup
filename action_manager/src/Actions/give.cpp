@@ -13,15 +13,15 @@
  * @param connector pointer to the connector object
  * */
 Give::Give(roboergosum_msgs::Action action, Connector* connector): VirtualAction(connector){
-    //
+
     if(action.parameters.size() == 2){
         object_ = action.parameters[0];
         receiver_ = action.parameters[1];
     }else{
         ROS_WARN("[action_manager] Wrong paramters for the give action, should be: object, receiver");
     }
-    node_.getParam("/action_manager/handoverConfigurationRight", confNameRight_);
-    node_.getParam("/action_manager/handoverConfigurationLeft", confNameLeft_);
+    connector_->node_.getParam("/action_manager/handoverConfigurationRight", confNameRight_);
+    connector_->node_.getParam("/action_manager/handoverConfigurationLeft", confNameLeft_);
 }
 
 /**

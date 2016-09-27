@@ -60,7 +60,6 @@ public:
     void moveLeftGripper(const actionlib::SimpleClientGoalState& state, const pr2motion::Gripper_Left_OperateResultConstPtr& result);
 
 protected:
-   ros::NodeHandle node_; /**< node handler*/
    bool shouldUseRightHand_; /**< flag which indicates if the robot should mandatorily use the right hand*/
    Connector* connector_; /**< pointer to the connector object*/
    std::string robotName_; /**< the robot name*/

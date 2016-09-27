@@ -13,7 +13,7 @@
  * @param connector pointer to the connector object
  * */
 Place::Place(roboergosum_msgs::Action action, Connector* connector): VirtualAction(connector){
-    //
+
     if(action.parameters.size() == 2){
         object_ = action.parameters[0];
         support_ = action.parameters[1];
