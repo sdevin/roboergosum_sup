@@ -36,7 +36,7 @@ bool Grab::preconditions(){
 
     //First we check if the giver is a knwon agent
     if(!isAgent(giver_)){
-      ROS_WARN("[action_executor] The giver of the grab action is not an known agent");
+      ROS_WARN("[action_manager] The giver of the grab action is not an known agent");
       return false;
     }
 

@@ -36,7 +36,7 @@ bool Drop::preconditions(){
 
     //First we check if the container is a known container object
     if(!isContainerObject(container_)){
-      ROS_WARN("[action_executor] The container where to drop is not a known container object");
+      ROS_WARN("[action_manager] The container where to drop is not a known container object");
       return false;
     }
 

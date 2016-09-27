@@ -35,7 +35,7 @@ bool Pick::preconditions(){
 
     //First we check if the object is a known manipulable object
     if(!isManipulableObject(object_)){
-      ROS_WARN("[action_executor] The object to pick is not a known manipulable object");
+      ROS_WARN("[action_manager] The object to pick is not a known manipulable object");
       return false;
     }
 

@@ -49,7 +49,7 @@ Connector::Connector(){
     PR2motion_gripper_right_->waitForServer();
     PR2motion_gripper_left_ = new actionlib::SimpleActionClient<pr2motion::Gripper_Left_OperateAction>("pr2motion/Gripper_Left_Operate",true);
     PR2motion_gripper_left_->waitForServer();
-    ROS_INFO("[action_executor] Action clients started.");
+    ROS_INFO("[action_manager] Action clients started.");
 
     //Init PR2motion
     ros::ServiceClient connect = node_.serviceClient<pr2motion::connect_port>("pr2motion/connect_port");
@@ -60,17 +60,17 @@ Connector::Connector(){
     srv.request.local = "joint_state";
     srv.request.remote = "joint_states";
     if (!connect.call(srv)){
-       ROS_ERROR("[action_executor] Failed to call service pr2motion/connect_port");
+       ROS_ERROR("[action_manager] Failed to call service pr2motion/connect_port");
     }
     srv.request.local = "head_controller_state";
     srv.request.remote = "/head_traj_controller/state";
     if (!connect.call(srv)){
-        ROS_ERROR("[action_executor] Failed to call service pr2motion/connect_port");
+        ROS_ERROR("[action_manager] Failed to call service pr2motion/connect_port");
     }
     srv.request.local = "traj";
     srv.request.remote = "gtp_trajectory";
     if (!connect.call(srv)){
-        ROS_ERROR("[action_executor] Failed to call service pr2motion/connect_port");
+        ROS_ERROR("[action_manager] Failed to call service pr2motion/connect_port");
     }
 
     if(simu_){//change torso position
@@ -78,7 +78,7 @@ Connector::Connector(){
        goal.torso_position = 0.1;
        torsoMoving_ = true;
        PR2motion_torso_->sendGoal(goal);
-       ROS_INFO("[action_executor] Waiting for Torso move");
+       ROS_INFO("[action_manager] Waiting for Torso move");
        bool finishedBeforeTimeout = PR2motion_torso_->waitForResult(ros::Duration(waitActionServer_));
        torsoMoving_ = false;
        if (!finishedBeforeTimeout){

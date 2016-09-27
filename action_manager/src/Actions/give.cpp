@@ -38,7 +38,7 @@ bool Give::preconditions(){
 
     //First we check if the receiver is a knwon agent
     if(!isAgent(receiver_)){
-      ROS_WARN("[action_executor] The receiver of the give action is not an known agent");
+      ROS_WARN("[action_manager] The receiver of the give action is not an known agent");
       return false;
     }
 

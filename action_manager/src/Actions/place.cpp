@@ -36,7 +36,7 @@ bool Place::preconditions(){
 
     //First we check if the object is a known support object
     if(!isSupportObject(support_)){
-      ROS_WARN("[action_executor] The support where to place is not a known support object");
+      ROS_WARN("[action_manager] The support where to place is not a known support object");
       return false;
     }
 

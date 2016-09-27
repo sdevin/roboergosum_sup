@@ -24,11 +24,11 @@ void HumanManager::humanPick(std::string agent, std::string object){
 
     std::pair<bool, std::string> previousAttachment = hasInHand(agent);
     if(previousAttachment.first){
-        ROS_WARN("[human_monitor] %s has already %s in hand", agent.c_str(), previousAttachment.second.c_str());
+        ROS_WARN("[human_manager] %s has already %s in hand", agent.c_str(), previousAttachment.second.c_str());
         return;
     }
 	
-	ROS_INFO("[human_monitor] %s has picked %s", agent.c_str(), object.c_str());
+    ROS_INFO("[human_manager] %s has picked %s", agent.c_str(), object.c_str());
 
     ros::ServiceClient put_in_hand = node_->serviceClient<toaster_msgs::PutInHand>("pdg/put_in_hand");
 
@@ -59,16 +59,16 @@ void HumanManager::humanPlace(std::string agent, std::string object, std::string
 
     std::pair<bool, std::string> previousAttachment = hasInHand(agent);
     if(!previousAttachment.first){
-        ROS_WARN("[human_monitor] %s has no object in hand", agent.c_str());
+        ROS_WARN("[human_manager] %s has no object in hand", agent.c_str());
         return;
     }else{
         if(previousAttachment.second != object){
-            ROS_WARN("[human_monitor] %s has %s in hand, not %s", agent.c_str(), previousAttachment.second.c_str(), object.c_str());
+            ROS_WARN("[human_manager] %s has %s in hand, not %s", agent.c_str(), previousAttachment.second.c_str(), object.c_str());
             return;
         }
     }
 
-	ROS_INFO("[human_monitor] %s has placed %s on %s", agent.c_str(), object.c_str(), support.c_str());
+    ROS_INFO("[human_manager] %s has placed %s on %s", agent.c_str(), object.c_str(), support.c_str());
 
     ros::ServiceClient remove_from_hand = node_->serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
     ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
@@ -138,16 +138,16 @@ void HumanManager::humanDrop(std::string agent, std::string object, std::string 
 	
     std::pair<bool, std::string> previousAttachment = hasInHand(agent);
     if(!previousAttachment.first){
-        ROS_WARN("[human_monitor] %s has no object in hand", agent.c_str());
+        ROS_WARN("[human_manager] %s has no object in hand", agent.c_str());
         return;
     }else{
         if(previousAttachment.second != object){
-            ROS_WARN("[human_monitor] %s has %s in hand, not %s", agent.c_str(), previousAttachment.second.c_str(), object.c_str());
+            ROS_WARN("[human_manager] %s has %s in hand, not %s", agent.c_str(), previousAttachment.second.c_str(), object.c_str());
             return;
         }
     }
 
-	ROS_INFO("[human_monitor] %s has droped %s in %s", agent.c_str(), object.c_str(), container.c_str());
+    ROS_INFO("[human_manager] %s has droped %s in %s", agent.c_str(), object.c_str(), container.c_str());
 
     ros::ServiceClient remove_from_hand = node_->serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
     ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
