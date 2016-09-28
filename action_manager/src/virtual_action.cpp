@@ -671,6 +671,24 @@ void VirtualAction::PutObjectInFrontRobot(std::string object){
 }
 
 /**
+* \brief Function which add facts to the database
+* @param facts the facts to add
+*/
+void VirtualAction::addFactsToDB(std::vector<toaster_msgs::Fact> facts){
+
+    ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+
+    toaster_msgs::SetInfoDB srv;
+    srv.request.agentId = robotName_;
+    srv.request.facts = facts;
+    srv.request.infoType = "FACT";
+    srv.request.add = true;
+    if (!client.call(srv)){
+     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+    }
+}
+
+/**
 * \brief Called once when the goal of the right arm action client completes
 * @param state state of the right arm action server
 * @param result result of the right arm action server

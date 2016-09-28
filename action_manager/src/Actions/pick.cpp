@@ -105,9 +105,11 @@ bool Pick::exec(){
 }
 
 /**
- * \brief Post-conditions for the pick action
+ * \brief Post-conditions for the pick action and add effects
  *
  * Check that the gripper of the robot is not completly closed (meaning that the robot misses the object, not in simu)
+ * The effects are:
+ *   - object isHoldBy robot
  *
  * \return true if the post-conditions are checked, else return false
  * */
@@ -118,6 +120,15 @@ bool Pick::post(){
         ROS_WARN("[action_manager] Robot failed to pick (gripper empty)");
         return false;
     }
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = object_;
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 
     return true;
 }

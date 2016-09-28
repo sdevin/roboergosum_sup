@@ -13,6 +13,7 @@
 HumanManager::HumanManager(ros::NodeHandle* node){
     node_ = node;
     node_->getParam("roboergosum/humanRightHand", humanHand_);
+    node_->getParam("/roboergosum/robotName", robotName_);
 }
 
 /**
@@ -46,6 +47,15 @@ void HumanManager::humanPick(std::string agent, std::string object){
     attach.first = agent;
     attach.second = object;
     attachments_.push_back(attach);
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = object;
+    fact.property = "isHoldBy";
+    fact.targetId = agent;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 }
 
 /**
@@ -126,6 +136,19 @@ void HumanManager::humanPlace(std::string agent, std::string object, std::string
     catch(const std::exception & e){
        ROS_WARN("Failed to read %s pose from toaster", support.c_str());
     }
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = agent;
+    effects.push_back(fact);
+    fact.subjectId = object;
+    fact.property = "isOn";
+    fact.targetId = support;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 }
 
 /**
@@ -196,6 +219,19 @@ void HumanManager::humanDrop(std::string agent, std::string object, std::string 
     catch(const std::exception & e){
        ROS_WARN("Failed to read %s pose from toaster", container.c_str());
     }
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = agent;
+    effects.push_back(fact);
+    fact.subjectId = object;
+    fact.property = "isIn";
+    fact.targetId = container;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 }
 
 /**
@@ -215,3 +251,22 @@ std::pair<bool, std::string> HumanManager::hasInHand(std::string agent){
     answer.first = false;
     return answer;
 }
+
+/**
+* \brief Function which add facts to the database
+* @param facts the facts to add
+*/
+void HumanManager::addFactsToDB(std::vector<toaster_msgs::Fact> facts){
+
+    ros::ServiceClient client = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+
+    toaster_msgs::SetInfoDB srv;
+    srv.request.agentId = robotName_;
+    srv.request.facts = facts;
+    srv.request.infoType = "FACT";
+    srv.request.add = true;
+    if (!client.call(srv)){
+     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+    }
+}
+

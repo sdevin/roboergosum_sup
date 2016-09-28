@@ -10,6 +10,7 @@
 #include "action_manager/connector.h"
 #include "toaster_msgs/Fact.h"
 #include "toaster_msgs/ExecuteDB.h"
+#include "toaster_msgs/SetInfoDB.h"
 #include <gtp_ros_msg/requestAction.h>
 #include "toaster_msgs/RobotListStamped.h"
 #include "toaster_msgs/ObjectListStamped.h"
@@ -86,6 +87,7 @@ protected:
    void PutOnSupport(std::string object, std::string support);
    void PutInContainer(std::string object, std::string container);
    void PutObjectInFrontRobot(std::string object);
+   void addFactsToDB(std::vector<toaster_msgs::Fact> facts);
 
 };
 

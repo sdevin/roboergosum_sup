@@ -125,6 +125,9 @@ bool Grab::exec(){
  * \brief Post-conditions for the grab action
  *
  * Check that the gripper of the robot is not completly closed (meaning that the robot misses the object, not in simu)
+ * The effects are:
+ *   - NULL isHoldBy receiver
+ *   - object isHoldBy robot
  *
  * \return true if the post-conditions are checked, else return false
  * */
@@ -135,6 +138,19 @@ bool Grab::post(){
         ROS_WARN("[action_manager] Robot failed to grab (gripper empty)");
         return false;
     }
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = giver_;
+    effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 
     return true;
 }

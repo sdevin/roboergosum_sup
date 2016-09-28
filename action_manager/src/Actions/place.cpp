@@ -124,15 +124,32 @@ bool Place::exec(){
 }
 
 /**
- * \brief Post-conditions for the place action
+ * \brief Post-conditions for the place action and add effects
  *
  * Place the object on the support
+ * The effects are:
+ *   - NULL isHoldBy robot
+ *   - object isOn support
  *
  * \return true if the post-conditions are checked, else return false
  * */
 bool Place::post(){
 
     PutOnSupport(object_, support_);
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isOn";
+    fact.targetId = support_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
+
 
     return true;
 }

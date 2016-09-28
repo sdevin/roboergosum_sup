@@ -124,15 +124,31 @@ bool Drop::exec(){
 }
 
 /**
- * \brief Post-conditions for the drop action
+ * \brief Post-conditions for the drop action and add effects
  *
  * Place the object in the container
+ * The effects are:
+ *   - NULL isHoldBy robot
+ *   - object isIn container
  *
  * \return true if the post-conditions are checked, else return false
  * */
 bool Drop::post(){
 
     PutInContainer(object_, container_);
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isIn";
+    fact.targetId = container_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 
     return true;
 }

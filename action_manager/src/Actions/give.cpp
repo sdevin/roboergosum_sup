@@ -134,9 +134,12 @@ bool Give::exec(){
 }
 
 /**
- * \brief Post-conditions for the give action
+ * \brief Post-conditions for the give action and add effects
  *
  * Transfer the object from robot to human hand
+ * The effects are:
+ *   - NULL isHoldBy robot
+ *   - object isHoldBy receiver
  *
  * \return true if the post-conditions are checked, else return false
  * */
@@ -144,6 +147,19 @@ bool Give::post(){
 
     RemoveFromHand(object_);
     PutInHumanHand(object_, receiver_);
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isHoldBy";
+    fact.targetId = receiver_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 
     return true;
 }
