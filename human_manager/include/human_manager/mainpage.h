@@ -21,10 +21,10 @@
 * - HumanManager: main class of the node
 
 *
-* \section provided_topics Provided topics
-*- /human_manager//human_action (std_msgs/Bool)
+* \section Services
+*- /human_manager/human_action (string actionName, string agent, string object, string support, string container)
 *
-* When a true bool is published in this topic, the gtp previous id is reset to -1
+* Simulate an action from a human
 *
 * \section Parameters
 *
