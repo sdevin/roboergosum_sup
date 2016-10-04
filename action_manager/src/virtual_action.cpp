@@ -110,7 +110,7 @@ bool VirtualAction::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
     if (client.call(srv)){
         return srv.response.boolAnswer;
     }else{
-       ROS_ERROR("[action_manager] Failed to call service mental_states/get_info");
+       ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
     }
     return false;
 }

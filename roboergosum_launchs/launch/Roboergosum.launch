@@ -3,6 +3,10 @@
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/ActionManager.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Entities.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/HumanMonitoring.yaml" />
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Environment.yaml" />
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/WorldState.yaml" />
 
         <node name="action_manager" pkg="action_manager" type="action_manager" output="screen" />  <!-- Launch the action manager -->
+        <node name="human_manager" pkg="human_manager" type="human_manager" output="screen" />  <!-- Launch the human manager -->
+        <node name="planners_manager" pkg="planners_manager" type="planners_manager" output="screen" />  <!-- Launch the planners manager -->
 </launch>

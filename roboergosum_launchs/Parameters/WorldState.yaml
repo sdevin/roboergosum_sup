@@ -1,0 +1,165 @@
+---
+worldState:
+    nbFacts: 40
+    facts:
+        0:
+            subject: GREEN_TAPE1
+            property: isReachableBy
+            target: PR2_ROBOT
+        1:
+            subject: GREEN_TAPE2
+            property: isReachableBy
+            target: PR2_ROBOT
+        2:
+            subject: GREEN_TAPE3
+            property: isReachableBy
+            target: PR2_ROBOT
+        3:
+            subject: BLUE_TAPE1
+            property: isReachableBy
+            target: PR2_ROBOT
+        4:
+            subject: BLUE_TAPE2
+            property: isReachableBy
+            target: PR2_ROBOT
+        5:
+            subject: BLUE_TAPE3
+            property: isReachableBy
+            target: PR2_ROBOT
+        6:
+            subject: GREEN_TAPE1
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        7:
+            subject: GREEN_TAPE2
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        8:
+            subject: GREEN_TAPE3
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        9:
+            subject: BLUE_TAPE1
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        10:
+            subject: BLUE_TAPE2
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        11:
+            subject: BLUE_TAPE3
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        12:
+            subject: GREEN_TRASHBIN
+            property: isReachableBy
+            target: PR2_ROBOT
+        13:
+            subject: BLUE_TRASHBIN
+            property: isReachableBy
+            target: PR2_ROBOT
+        14:
+            subject: GREEN_TRASHBIN
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        15:
+            subject: BLUE_TRASHBIN
+            property: isReachableBy
+            target: HERAKLES_HUMAN
+        16:
+            subject: GREEN_TAPE1
+            property: isIn
+            target: GREEN_TRASHBIN
+        17:
+            subject: GREEN_TAPE2
+            property: isIn
+            target: GREEN_TRASHBIN
+        18:
+            subject: GREEN_TAPE3
+            property: isIn
+            target: GREEN_TRASHBIN
+        19:
+            subject: BLUE_TAPE1
+            property: isIn
+            target: GREEN_TRASHBIN
+        20:
+            subject: BLUE_TAPE2
+            property: isIn
+            target: GREEN_TRASHBIN
+        21:
+            subject: BLUE_TAPE3
+            property: isIn
+            target: GREEN_TRASHBIN
+        22:
+            subject: GREEN_TAPE1
+            property: isIn
+            target: BLUE_TRASHBIN
+        23:
+            subject: GREEN_TAPE2
+            property: isIn
+            target: BLUE_TRASHBIN
+        24:
+            subject: GREEN_TAPE3
+            property: isIn
+            target: BLUE_TRASHBIN
+        25:
+            subject: BLUE_TAPE1
+            property: isIn
+            target: BLUE_TRASHBIN
+        26:
+            subject: BLUE_TAPE2
+            property: isIn
+            target: BLUE_TRASHBIN
+        27:
+            subject: BLUE_TAPE3
+            property: isIn
+            target: BLUE_TRASHBIN
+        28:
+            subject: GREEN_TAPE1
+            property: isHoldBy
+            target: PR2_ROBOT
+        29:
+            subject: GREEN_TAPE2
+            property: isHoldBy
+            target: PR2_ROBOT
+        30:
+            subject: GREEN_TAPE3
+            property: isHoldBy
+            target: PR2_ROBOT
+        31:
+            subject: BLUE_TAPE1
+            property: isHoldBy
+            target: PR2_ROBOT
+        32:
+            subject: BLUE_TAPE2
+            property: isHoldBy
+            target: PR2_ROBOT
+        33:
+            subject: BLUE_TAPE3
+            property: isHoldBy
+            target: PR2_ROBOT
+        34:
+            subject: GREEN_TAPE1
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+        35:
+            subject: GREEN_TAPE2
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+        36:
+            subject: GREEN_TAPE3
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+        37:
+            subject: BLUE_TAPE1
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+        38:
+            subject: BLUE_TAPE2
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+        39:
+            subject: BLUE_TAPE3
+            property: isHoldBy
+            target: HERAKLES_HUMAN
+
