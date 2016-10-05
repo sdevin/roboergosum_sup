@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    Action.msg
+   Plan.msg
+   Link.msg
 )
 
 add_service_files(

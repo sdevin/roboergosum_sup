@@ -1,6 +1,7 @@
 ---
 roboergosum:
     robotName: 'PR2_ROBOT'
+    humanName: 'HERAKLES_HUMAN1'
     toasterRobotName: 'pr2'
     robotHands:
         right: 'r_gripper_palm_link'
@@ -8,3 +9,6 @@ roboergosum:
     simu: true
     waitActionServer: 10.0
     humanRightHand: 'rightHand'
+    humanLazy: false
+    humanProactive: true
+    expertsMode: 'hatp' #hatp, mf or both

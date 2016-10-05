@@ -145,6 +145,11 @@ bool Give::exec(){
  * */
 bool Give::post(){
 
+    //if we consider the huma lazy, the action failed
+    if(connector_->humanLazy_){
+        return false;
+    }
+
     RemoveFromHand(object_);
     PutInHumanHand(object_, receiver_);
 

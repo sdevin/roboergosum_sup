@@ -18,6 +18,7 @@ Connector::Connector(){
     node_.getParam("/entities/agents", agentsList_);
     node_.getParam("/roboergosum/waitActionServer", waitActionServer_);
     node_.getParam("/action_manager/nbPlanMaxGTP", nbPlanMax_);
+    node_.getParam("roboergosum/humanLazy", humanLazy_);
 
     previousGTPId_ = -1;
     idGrasp_ = -1;

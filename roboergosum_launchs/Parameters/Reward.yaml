@@ -1,0 +1,29 @@
+---
+reward:
+    nbFacts: 6
+    facts:
+        0:
+            subject: 'GREEN_TAPE1'
+            property: 'isIn'
+            target: 'GREEN_TRASHBIN'
+        1:
+            subject: 'GREEN_TAPE2'
+            property: 'isIn'
+            target: 'GREEN_TRASHBIN'
+        2:
+            subject: 'GREEN_TAPE3'
+            property: 'isIn'
+            target: 'GREEN_TRASHBIN'
+        3:
+            subject: 'BLUE_TAPE1'
+            property: 'isIn'
+            target: 'BLUE_TRASHBIN'
+        4:
+            subject: 'BLUE_TAPE2'
+            property: 'isIn'
+            target: 'BLUE_TRASHBIN'
+        5:
+            subject: 'BLUE_TAPE3'
+            property: 'isIn'
+            target: 'BLUE_TRASHBIN'
+

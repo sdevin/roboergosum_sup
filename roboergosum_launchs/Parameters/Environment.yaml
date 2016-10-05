@@ -1,5 +1,8 @@
 ---
 environment:
+    humanArea: 'humanArea'
+    middleArea: 'middleArea'
+    robotArea: 'robotArea'
     objectsToPlace: ['PLACEMAT_1', 'PLACEMAT_2', 'RED_CUBE2', 'BLUE_CUBE2', 'RED_CUBE', 'BLUE_CUBE', 'GREEN_CUBE', 'STICK']
     objectsPose:
         PLACEMAT_1:

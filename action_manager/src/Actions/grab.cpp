@@ -112,12 +112,18 @@ bool Grab::plan(){
  * */
 bool Grab::exec(){
 
-    if(execGTPAction(GTPActionId_, true, object_)){
-        return true;
-    }else{
+    if(!execGTPAction(GTPActionId_, true, object_)){
         //we place back the object in the human hand
         PutInHumanHand(object_, giver_);
+        return false;
     }
+    //if we consider the human lazy, the action failed
+    if(connector_->humanLazy_){
+        PutInHumanHand(object_, giver_);
+        return false;
+    }
+
+    return true;
 
 }
 
