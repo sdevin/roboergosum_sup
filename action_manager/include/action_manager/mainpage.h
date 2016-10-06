@@ -16,6 +16,7 @@
 * - Drop
 * - Give (handover robot to human)
 * - Grab (handover human to robot)
+* - Navigate
 *
 * This node is composed of the following classes:
 * - ActionManager: main class of the node, contains the action server

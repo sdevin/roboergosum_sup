@@ -71,6 +71,7 @@ protected:
    bool isManipulableObject(std::string object);
    bool isSupportObject(std::string support);
    bool isContainerObject(std::string container);
+   bool isLocation(std::string location);
    bool isAgent(std::string agent);
    bool AreFactsInDB(std::vector<toaster_msgs::Fact> precs);
    bool updateGTP();

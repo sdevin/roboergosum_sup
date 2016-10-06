@@ -77,6 +77,25 @@ bool VirtualAction::isContainerObject(std::string container){
 }
 
 /**
+* \brief Function which return true if a location is a known location (based on parameters)
+* @param location the tested location
+* \return true if the location is a known location
+*/
+bool VirtualAction::isLocation(std::string location){
+
+    //We check if the object is in the list of container objects
+    for(std::vector<std::string>::iterator it = connector_->locationsList_.begin(); it != connector_->locationsList_.end(); it++){
+       if(*it == location){
+          return true;
+       }
+    }
+
+   return false;
+
+}
+
+
+/**
 * \brief Function which return true if the given parameter is an agent (based on parameters)
 * @param agent the tested parameter
 * \return true if the parameter is an agent

@@ -15,6 +15,7 @@
 #include "action_manager/Actions/drop.h"
 #include "action_manager/Actions/give.h"
 #include "action_manager/Actions/grab.h"
+#include "action_manager/Actions/navigate.h"
 #include <toaster_msgs/Fact.h>
 #include <toaster_msgs/FactList.h>
 #include <std_msgs/Bool.h>

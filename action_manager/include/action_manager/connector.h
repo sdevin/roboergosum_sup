@@ -45,6 +45,7 @@ public:
     std::vector<std::string> supportObjects_; /**< list of support objects*/
     std::vector<std::string> containerObjects_; /**< list of container objects*/
     std::vector<std::string> agentsList_; /**< list of existing agents*/
+    std::vector<std::string> locationsList_; /**< list of existing locations*/
     int previousGTPId_; /**< gtp id of the previous action*/
     int nbPlanMax_; /**< nb of time we should try to call gtp to get a plan*/
     double waitActionServer_; /**< time we should wait for an action server*/

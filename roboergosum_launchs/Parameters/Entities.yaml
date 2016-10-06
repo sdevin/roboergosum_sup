@@ -4,6 +4,7 @@ entities:
     objects: ['GREEN_TAPE1', 'GREEN_TAPE2', 'GREEN_TAPE3', 'BLUE_TAPE1', 'BLUE_TAPE2', 'BLUE_TAPE3']
     supports: ['TABLE_4']
     containers: ['BLUE_TRASHBIN', 'GREEN_TRASHBIN']
+    locations: ['initialLocation', 'secondLocation']
     objectsHeight:
         top:
              TABLE_4: 0.73
