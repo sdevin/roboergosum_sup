@@ -169,6 +169,35 @@ void updateHATPPlan(roboergosum_msgs::Action action){
 }
 
 /**
+ * \brief Return the next HATP action to perform
+ * @return next HATP action to perform
+ * */
+roboergosum_msgs::Action getNextHATP(){
+
+    if(hasHATPPlan){
+        for(std::vector<roboergosum_msgs::Action>::iterator it = hatpPlan.actions.begin(); it != hatpPlan.actions.end(); it++){
+            if(it->actors[0] == robotName && !pm_->isIntInVector(it->id, executedActions)){
+                bool linksOk = true;
+                for(std::vector<roboergosum_msgs::Link>::iterator itl = hatpPlan.links.begin(); itl != hatpPlan.links.end(); itl++){
+                    if(itl->following == it->id && !pm_->isIntInVector(itl->origin, executedActions)){
+                        linksOk = false;
+                        break;
+                    }
+                }
+                if(linksOk){
+                    return *it;
+                }
+            }
+        }
+    }
+
+    //if we are here, we did not find an action so we return wait
+    roboergosum_msgs::Action action;
+    action.name == "wait";
+    return action;
+}
+
+/**
  * \brief Initialize the set of facts representing the world state
  * */
 void initWSFacts(){
@@ -253,35 +282,46 @@ int main (int argc, char **argv)
 
   while (node.ok()) {
      //we reset the environment if needed
-     if(pm_->needEnvReset_){
-        pm_->setEnvironment();
-     }
-
-     //we publish the world state and the previous reward
-     long long int nbWS = pm_->computeWS(WSFacts);
-     std::stringstream ss;
-     ss << nbWS;
-     std::string stateID = ss.str();
-     BP_experiment::StateReward msg_state;
+    if(pm_->needEnvReset_){
+     pm_->setEnvironment();
+    }
+    
+    //we publish the world state and the previous reward
+    long long int nbWS = pm_->computeWS(WSFacts);
+    std::stringstream ss;
+    ss << nbWS;
+    std::string stateID = ss.str();
+    BP_experiment::StateReward msg_state;
      msg_state.stateID = stateID;
      msg_state.stateType = "Bpe";
      msg_state.reward = reward;
      statereward_pub.publish(msg_state);
 
-     std::string extertToCall;
+     std::string expertToCall;
      //we ask to the metacontroller which expert to call (if in both mode)
      if(expertsMode == "both"){
         //TODO
      }else{
-         extertToCall = expertsMode;
+         expertToCall = expertsMode;
      }
 
      //we call the expert
      roboergosum_msgs::Action action;
-     if(extertToCall == "mf"){
+     if(expertToCall == "mf"){
         //TODO
-     }else if(extertToCall == "hatp"){
-        //TODO
+     }else if(expertToCall == "hatp"){
+        if(!hasHATPPlan){
+            executedActions.clear();
+            //first we look for a plan
+            std::pair<bool, roboergosum_msgs::Plan> hatpRequest = pm_->GetHATPPlan(toBlockHATP, actionToBlockHATP);
+            if(hatpRequest.first){
+                hatpPlan = hatpRequest.second;
+            }else{
+                ROS_WARN("HATP did not find a plan for the current situatuion");
+            }
+        }
+        //then we get the corresponding action
+        action = getNextHATP();
      }
 
      bool humanActionNeeded = false;
@@ -308,7 +348,7 @@ int main (int argc, char **argv)
              }
          }else{
              //the action failed
-             if(extertToCall == "hatp"){
+             if(expertToCall == "hatp"){
                  //if it was an action from hatp, a new plan is needed
                  toBlockHATP = true;
                  actionToBlockHATP = action;
@@ -329,7 +369,11 @@ int main (int argc, char **argv)
                 srv.request.object = humanAction.second.parameters[0];
             }
             if(action.parameters.size()>1){
-                srv.request.container = humanAction.second.parameters[1];
+                if(humanAction.second.name == "drop"){
+                    srv.request.container = humanAction.second.parameters[1];
+                }else if(humanAction.second.name == "place"){
+                    srv.request.support = humanAction.second.parameters[1];
+                }
             }
             //Sending the action
             if (!client.call(srv)) {
@@ -337,7 +381,7 @@ int main (int argc, char **argv)
             }
         }else{
             //if hatp was waiting for an action and the human does not perform it we need a new plan
-            if(action.name == "wait" && extertToCall == "hatp"){
+            if(action.name == "wait" && expertToCall == "hatp"){
                 toBlockHATP = true;
                 roboergosum_msgs::Action actionToBlock;
                 actionToBlock.name = "humanAction";
@@ -348,7 +392,8 @@ int main (int argc, char **argv)
      }
 
      //we compute the reward
-     if(pm_->AreFactsInDB(rewardFacts)){
+     //the robot needs to perform a wait action in the final state to get a reward
+     if(pm_->AreFactsInDB(rewardFacts) && action.name == "wait"){
          reward = 1.0;
          pm_->needEnvReset_ = true;
      }else{

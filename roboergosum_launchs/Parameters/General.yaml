@@ -12,3 +12,4 @@ roboergosum:
     humanLazy: false
     humanProactive: true
     expertsMode: 'hatp' #hatp, mf or both
+    HATPMethodName: 'Clean'

@@ -31,3 +31,11 @@ entities:
         BLUE_TAPE3: "blue"
         GREEN_TRASHBIN: "green"
         BLUE_TRASHBIN: "blue"
+
+HATP_actions:
+   Pick: 'pick'
+   Place: 'place'
+   Drop: 'drop'
+   Navigate: 'navigate'
+   Give: 'give'
+   Grab: 'grab'
