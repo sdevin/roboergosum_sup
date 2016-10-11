@@ -41,12 +41,13 @@ public:
     PlannersManager(ros::NodeHandle* node);
     ~PlannersManager();
     void setEnvironment();
-    long long int computeWS(std::vector<toaster_msgs::Fact> WSFacts);
+    std::string computeWS(std::vector<toaster_msgs::Fact> WSFacts);
     bool areActionsIdentical(roboergosum_msgs::Action action1, roboergosum_msgs::Action action2);
     bool isIntInVector(int i, std::vector<int> vector);
     std::vector<std::string> executeSQL(std::string sql);
     bool AreFactsInDB(std::vector<toaster_msgs::Fact> facts);
     std::pair<bool, roboergosum_msgs::Plan> GetHATPPlan(bool toBlock, roboergosum_msgs::Action actionToBlock);
+    void removeHATPFlags();
 
     bool needEnvReset_; /**< true if the environment need to be put reset to the initial set-up*/
     std::ofstream fileLog_; /**< the file whre to log info*/
@@ -58,7 +59,7 @@ private:
 
     void resetDB();
     roboergosum_msgs::Plan convertPlan(hatp_msgs::Plan plan);
-    void addHATPFlags(bool toBlock, roboergosum_msgs::Action actionToBlock);
+    void addHATPFlags(roboergosum_msgs::Action actionToBlock);
 };
 
 #endif // PLANNERSMANAGER_H

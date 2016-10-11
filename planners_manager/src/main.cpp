@@ -12,7 +12,7 @@ std::vector<int> executedActions;
 bool hasHATPPlan = false;
 bool toBlockHATP = false;
 roboergosum_msgs::Action actionToBlockHATP;
-float reward = 0.0;
+float reward;
 std::vector<toaster_msgs::Fact> WSFacts, rewardFacts;
 bool humanLazy, humanProactive;
 std::map<std::string, std::string> objectsColor;
@@ -127,6 +127,12 @@ void initObjects(){
  * */
 void updateHATPPlan(roboergosum_msgs::Action action){
 
+    //if an action succeeds, we remove HATP flags
+    if(toBlockHATP){
+        pm_->removeHATPFlags();
+        toBlockHATP = false;
+    }
+
     //we look if the action is part of the plan
     bool find = false;
     roboergosum_msgs::Action planAction;
@@ -164,7 +170,7 @@ void updateHATPPlan(roboergosum_msgs::Action action){
         }
     }
 
-    //if we are here, the actionis considered ok so we add it to theexecuted actions
+    //if we are here, the actionis considered ok so we add it to the executed actions
     executedActions.push_back(planAction.id);
 }
 
@@ -282,16 +288,13 @@ int main (int argc, char **argv)
 
   while (node.ok()) {
      //we reset the environment if needed
-    if(pm_->needEnvReset_){
-     pm_->setEnvironment();
-    }
-    
-    //we publish the world state and the previous reward
-    long long int nbWS = pm_->computeWS(WSFacts);
-    std::stringstream ss;
-    ss << nbWS;
-    std::string stateID = ss.str();
-    BP_experiment::StateReward msg_state;
+     if(pm_->needEnvReset_){
+        pm_->setEnvironment();
+     }
+
+     //we publish the world state and the previous reward
+     std::string stateID = pm_->computeWS(WSFacts);
+     BP_experiment::StateReward msg_state;
      msg_state.stateID = stateID;
      msg_state.stateType = "Bpe";
      msg_state.reward = reward;
@@ -322,6 +325,7 @@ int main (int argc, char **argv)
         }
         //then we get the corresponding action
         action = getNextHATP();
+        //TODO: we publish the chosen action
      }
 
      bool humanActionNeeded = false;
@@ -402,7 +406,7 @@ int main (int argc, char **argv)
 
      ros::spinOnce();
      loop_rate.sleep();
-  }
+    }
 
-  return 0;
+    return 0;
 }

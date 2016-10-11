@@ -117,16 +117,18 @@ void PlannersManager::resetDB(){
  * @param WSFacts the set of facts representing the world state
  * @return the int to send to the MF
  * */
-long long int PlannersManager::computeWS(std::vector<toaster_msgs::Fact> WSFacts){
+std::string PlannersManager::computeWS(std::vector<toaster_msgs::Fact> WSFacts){
 
-    long long int result = 0;
+    std::string result;
     int i = 0;
     for(std::vector<toaster_msgs::Fact>::iterator it = WSFacts.begin(); it != WSFacts.end(); it++){
         //we look if the fact exists in the database
         std::vector<toaster_msgs::Fact> facts;
         facts.push_back(*it);
         if(AreFactsInDB(facts)){
-            result = result + pow(2, i);
+            result = result + "1";
+        }else{
+            result = result + "0";
         }
         i++;
     }
@@ -216,7 +218,9 @@ std::pair<bool, roboergosum_msgs::Plan> PlannersManager::GetHATPPlan(bool toBloc
     hatp_msgs::PlanningRequest service;
 
     //we add HATP flags
-    addHATPFlags(toBlock, actionToBlock);
+    if(toBlock){
+        addHATPFlags(actionToBlock);
+    }
 
     //We look for the HATP method name to call
     std::string methodTopic = "roboergosum/HATPMethodName";
@@ -285,37 +289,80 @@ roboergosum_msgs::Plan PlannersManager::convertPlan(hatp_msgs::Plan plan){
 
 /**
  * \brief Function which add hatp flags before asking for a plan
- * @param toBlock true if there is an action to forbid
  * @param actionToBlock the action to block
  * */
-void PlannersManager::addHATPFlags(bool toBlock, roboergosum_msgs::Action actionToBlock){
+void PlannersManager::addHATPFlags(roboergosum_msgs::Action actionToBlock){
 
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
     toaster_msgs::SetInfoDB srv;
     srv.request.infoType = "FACT";
     srv.request.agentId = robotName_;
-    std::vector<toaster_msgs::Fact> toAddFacts, toRmFacts;
+    std::vector<toaster_msgs::Fact> toAddFacts;
     toaster_msgs::Fact fact;
+    srv.request.add = true;
 
     //first we look for the handover flag
     fact.subjectId = "HERAKLES_HUMAN1";
     fact.property = "performHandover";
     fact.targetId = "true";
-    if(toBlock && (actionToBlock.name == "give" || actionToBlock.name == "grab")){
+    if(actionToBlock.name == "give" || actionToBlock.name == "grab"){
         toAddFacts.push_back(fact);
-    }else{
-        toRmFacts.push_back(fact);
+        srv.request.facts = toAddFacts;
+        if (!client.call(srv)){
+         ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
+        }
     }
 
     //then we look for human action
     fact.subjectId = "HERAKLES_HUMAN1";
     fact.property = "hasNotActed";
     fact.targetId = "true";
-    if(toBlock && actionToBlock.name == "humanAction"){
+    if(actionToBlock.name == "humanAction"){
         toAddFacts.push_back(fact);
-    }else{
-        toRmFacts.push_back(fact);
+        srv.request.facts = toAddFacts;
+        if (!client.call(srv)){
+         ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
+        }
     }
+
+    //finally we look for pick failures
+    if(actionToBlock.name == "pick" ){
+        srv.request.add = true;
+        fact.subjectId = actionToBlock.parameters[0];
+        fact.property = "canNotBePicked";
+        fact.targetId = "true";
+        toAddFacts.push_back(fact);
+        srv.request.facts = toAddFacts;
+        if (!client.call(srv)){
+         ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
+        }
+    }
+}
+
+/**
+ * \brief Function which add hatp flags before asking for a plan
+ * */
+void PlannersManager::removeHATPFlags(){
+
+    ros::ServiceClient client = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+    toaster_msgs::SetInfoDB srv;
+    srv.request.infoType = "FACT";
+    srv.request.agentId = robotName_;
+    std::vector<toaster_msgs::Fact> toRmFacts;
+    toaster_msgs::Fact fact;
+    srv.request.add = false;
+
+    //first we look for the handover flag
+    fact.subjectId = "HERAKLES_HUMAN1";
+    fact.property = "performHandover";
+    fact.targetId = "true";
+    toRmFacts.push_back(fact);
+
+    //then we look for human action
+    fact.subjectId = "HERAKLES_HUMAN1";
+    fact.property = "hasNotActed";
+    fact.targetId = "true";
+    toRmFacts.push_back(fact);
 
     //finally we look for pick failures
     //we first remove the old ones
@@ -323,23 +370,9 @@ void PlannersManager::addHATPFlags(bool toBlock, roboergosum_msgs::Action action
     fact.property = "canNotBePicked";
     fact.targetId = "true";
     toRmFacts.push_back(fact);
-    //we add one if needed
-    if(toBlock && actionToBlock.name == "pick" ){
-        srv.request.add = true;
-        fact.subjectId = actionToBlock.parameters[0];
-        fact.property = "canNotBePicked";
-        fact.targetId = "true";
-        toAddFacts.push_back(fact);
-    }
 
     srv.request.add = false;
     srv.request.facts = toRmFacts;
-    if (!client.call(srv)){
-     ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
-    }
-
-    srv.request.add = false;
-    srv.request.facts = toAddFacts;
     if (!client.call(srv)){
      ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
     }
