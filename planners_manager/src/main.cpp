@@ -318,9 +318,9 @@ int main (int argc, char **argv)
      //we call the expert
      roboergosum_msgs::Action action;
      if(expertToCall == "mf"){
-         BP_experiment::ExpertPlanning MFanswer;
-         MFanswer = *(ros::topic::waitForMessage<BP_experiment::ExpertPlanning>("bp_experiment/habitualAction",ros::Duration(1)));
-         action = pm_->getActionFromId(MFanswer.expertPlanning);
+         BP_experiment::Actions MFanswer;
+         MFanswer = *(ros::topic::waitForMessage<BP_experiment::Actions>("bp_experiment/habitualAction",ros::Duration(1)));
+         action = pm_->getActionFromId(MFanswer.actionID);
      }else if(expertToCall == "hatp"){
         if(!hasHATPPlan){
             executedActions.clear();

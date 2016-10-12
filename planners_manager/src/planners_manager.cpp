@@ -18,10 +18,15 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
     objectInHumanHand_ = "NONE";
     robotPose_ = "initialLocation";
 
+    //open logs files
     std::string idExp;
     node_->getParam("/roboergosum/idExp", idExp);
-    std::string filePath = "logs/Sup/exp_" + idExp;
-    fileLog_.open(filePath.c_str(), std::ios::out|std::ios::trunc);
+    std::string fileHATPPath = "logs/Sup/exp_" + idExp + "HATP.dat";
+    fileLogHATP_.open(fileHATPPath.c_str(), std::ios::out|std::ios::trunc);
+    std::string fileRobotPath = "logs/Sup/exp_" + idExp + "RobotActions.dat";
+    fileLogRobotActions_.open(fileRobotPath.c_str(), std::ios::out|std::ios::trunc);
+    std::string fileHumanPath = "logs/Sup/exp_" + idExp + "HumanActions.dat";
+    fileLogHumanActions_.open(fileHumanPath.c_str(), std::ios::out|std::ios::trunc);
 }
 
 /**
@@ -29,7 +34,9 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
  * */
 PlannersManager::~PlannersManager(){
 
-    fileLog_.close();
+    fileLogHATP_.close();
+    fileLogRobotActions_.close();
+    fileLogHumanActions_.close();
 }
 
 /**
@@ -111,9 +118,9 @@ bool PlannersManager::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
 * @param facts the facts
 * \return a vector of bool representing for each fact if it is on the database
 */
-std::vector<bool> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts){
+std::vector<std::string> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts){
 
-    std::vector<bool> res;
+    std::vector<std::string> res;
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
     toaster_msgs::ExecuteDB srv;
     srv.request.command = "ARE_IN_TABLE";
@@ -121,7 +128,7 @@ std::vector<bool> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_msgs::F
     srv.request.agent = robotName_;
     srv.request.facts = facts;
     if (client.call(srv)){
-        res = srv.response.boolResults;
+        res = srv.response.results;
     }else{
        ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
     }
@@ -149,9 +156,9 @@ std::string PlannersManager::computeWS(std::vector<toaster_msgs::Fact> WSFacts){
 
     std::string ws;
     //we look if the facts exists in the database
-    std::vector<bool> results = AreFactsInDBIndiv(WSFacts);
-    for(std::vector<bool>::iterator it = results.begin(); it != results.end(); it++){
-        if(*it){
+    std::vector<std::string> results = AreFactsInDBIndiv(WSFacts);
+    for(std::vector<std::string>::iterator it = results.begin(); it != results.end(); it++){
+        if(*it == "true"){
             ws = ws + "1";
         }else{
             ws = ws + "0";
