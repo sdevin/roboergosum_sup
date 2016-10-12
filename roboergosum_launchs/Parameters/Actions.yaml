@@ -1,0 +1,52 @@
+---
+actions:
+    nbActions: 18
+    0:
+        name: "pick"
+        object: "GREEN_TAPE1"
+    1:
+        name: "pick"
+        object: "GREEN_TAPE2"
+    2:
+        name: "pick"
+        object: "GREEN_TAPE3"
+    3:
+        name: "pick"
+        object: "BLUE_TAPE1"
+    4:
+        name: "pick"
+        object: "BLUE_TAPE2"
+    5:
+        name: "pick"
+        object: "BLUE_TAPE3"
+    6:
+        name: "place"
+        object: "PLACEMENT_1"
+    7:
+        name: "place"
+        support: "PLACEMENT_2"
+    8:
+        name: "place"
+        support: "PLACEMENT_3"
+    9:
+        name: "place"
+        support: "PLACEMENT_4"
+    10:
+        name: "place"
+        support: "PLACEMENT_5"
+    11:
+        name: "place"
+        support: "PLACEMENT_6"
+    12:
+        name: "place"
+        support: "PLACEMENT_7"
+    13:
+        name: "drop"
+    14:
+        name: "navigate"
+    15:
+        name: "give"
+    16:
+        name: "grab"
+    17:
+        name: "wait"

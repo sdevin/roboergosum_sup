@@ -31,6 +31,9 @@ entities:
         BLUE_TAPE3: "blue"
         GREEN_TRASHBIN: "green"
         BLUE_TRASHBIN: "blue"
+    trashbin:
+        green: "GREEN_TRASHBIN"
+        blue: "BLUE_TRASHBIN"
 
 HATP_actions:
    Pick: 'pick'

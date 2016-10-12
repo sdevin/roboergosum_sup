@@ -31,6 +31,8 @@
 
 
 #include "BP_experiment/StateReward.h"
+#include "BP_experiment/ExpertsActiv.h"
+#include "BP_experiment/ExpertPlanning.h"
 
 
 /**
@@ -48,9 +50,13 @@ public:
     bool AreFactsInDB(std::vector<toaster_msgs::Fact> facts);
     std::pair<bool, roboergosum_msgs::Plan> GetHATPPlan(bool toBlock, roboergosum_msgs::Action actionToBlock);
     void removeHATPFlags();
+    roboergosum_msgs::Action getActionFromId(int id);
 
     bool needEnvReset_; /**< true if the environment need to be put reset to the initial set-up*/
     std::ofstream fileLog_; /**< the file whre to log info*/
+    std::string objectInHand_; /**< the object the robot has in hand*/
+    std::string objectInHumanHand_; /**< the object the human has in hand*/
+    std::string robotPose_; /**< position of the robot*/
 protected:
 
 private:

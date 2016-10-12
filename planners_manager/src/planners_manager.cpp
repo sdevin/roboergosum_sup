@@ -14,6 +14,9 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
     node_ = node;
     node_->getParam("/roboergosum/robotName", robotName_);
     needEnvReset_ = true;
+    objectInHand_ = "NONE";
+    objectInHumanHand_ = "NONE";
+    robotPose_ = "initialLocation";
 
     std::string idExp;
     node_->getParam("/roboergosum/idExp", idExp);
@@ -36,6 +39,9 @@ void PlannersManager::setEnvironment(){
 
     //we reset the database to not have old facts in it
     resetDB();
+    objectInHand_ = "NONE";
+    objectInHumanHand_ = "NONE";
+    robotPose_ = "initialLocation";
 
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
 
@@ -376,4 +382,78 @@ void PlannersManager::removeHATPFlags(){
     if (!client.call(srv)){
      ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
     }
+}
+
+/**
+ * \brief Function which return the action corresponding to a given id
+ * @param id the id of the action
+ * @return the instantiated action corresponding to the id
+ * */
+roboergosum_msgs::Action PlannersManager::getActionFromId(int id){
+
+    std::stringstream ss;
+    ss << id;
+    std::string idString = ss.str();
+
+    roboergosum_msgs::Action action;
+    action.actors.push_back(robotName_);
+
+    //get the action name
+    std::string nameTopic = "actions/" + idString + "/name";
+    node_->getParam(nameTopic, action.name);
+    if(action.name == "pick"){
+        //we look for the object
+        std::string objectTopic = "actions/" + idString + "/object";
+        std::string object;
+        node_->getParam(objectTopic, object);
+        action.parameters.push_back(object);
+        return action;
+    }
+
+    if(action.name == "place" || action.name == "drop" || action.name == "give"){
+        //we retreive the object from attachment
+        action.parameters.push_back(objectInHand_);
+    }
+
+    if(action.name == "grab"){
+        //we get object form human hand
+        action.parameters.push_back(objectInHumanHand_);
+    }
+
+    if(action.name == "place"){
+        //we look for the support
+        std::string supportTopic = "actions/" + idString + "/support";
+        std::string support;
+        node_->getParam(supportTopic, support);
+        action.parameters.push_back(support);
+        return action;
+    }
+
+    if(action.name == "drop"){
+        //we get the good trashbin
+        std::string colorTopic = "entities/objectsColor/" + objectInHand_;
+        std::string objectColor;
+        node_->getParam(colorTopic, objectColor);
+        std::string trashbinTopic = "entities/trashbin/" + objectColor;
+        std::string trashbin;
+        node_->getParam(trashbinTopic, trashbin);
+        action.parameters.push_back(trashbin);
+        return action;
+    }
+
+    if(action.name == "give" || action.name == "grab"){
+        action.parameters.push_back("HERAKLES_HUMAN1");
+        return action;
+    }
+
+    if(action.name == "navigate"){
+        if(robotPose_ == "initialLocation"){
+            action.parameters.push_back("secondLocation");
+        }else{
+            action.parameters.push_back("initialLocation");
+        }
+        return action;
+    }
+
+    return action;
 }

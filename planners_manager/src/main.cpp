@@ -303,7 +303,13 @@ int main (int argc, char **argv)
      std::string expertToCall;
      //we ask to the metacontroller which expert to call (if in both mode)
      if(expertsMode == "both"){
-        //TODO
+        BP_experiment::ExpertsActiv MCanswer;
+        MCanswer  = *(ros::topic::waitForMessage<BP_experiment::ExpertsActiv>("bp_experiment/metacontroller/controlsignal",ros::Duration(1)));
+        if(MCanswer.modelfree){
+            expertToCall = "mf";
+        }else{
+            expertToCall = "hatp";
+        }
      }else{
          expertToCall = expertsMode;
      }
@@ -311,7 +317,9 @@ int main (int argc, char **argv)
      //we call the expert
      roboergosum_msgs::Action action;
      if(expertToCall == "mf"){
-        //TODO
+         BP_experiment::ExpertPlanning MFanswer;
+         MFanswer = *(ros::topic::waitForMessage<BP_experiment::ExpertPlanning>("bp_experiment/habitualAction",ros::Duration(1)));
+         action = pm_->getActionFromId(MFanswer.expertPlanning);
      }else if(expertToCall == "hatp"){
         if(!hasHATPPlan){
             executedActions.clear();
@@ -350,6 +358,19 @@ int main (int argc, char **argv)
              if(hasHATPPlan){
                 updateHATPPlan(action);
              }
+             if(action.name == "pick" || action.name == "grab"){
+                 pm_->objectInHand_ = action.parameters[0];
+                 if(action.name == "grab"){
+                     pm_->objectInHumanHand_ = "NONE";
+                 }
+             }else if(action.name == "give" || action.name == "place" || action.name == "drop"){
+                 pm_->objectInHand_ = "NONE";
+                 if(action.name == "grab"){
+                     pm_->objectInHumanHand_ = action.parameters[0];
+                 }
+             }else if(action.name == "navigate"){
+                 pm_->robotPose_ = action.parameters[0];
+             }
          }else{
              //the action failed
              if(expertToCall == "hatp"){
@@ -380,8 +401,14 @@ int main (int argc, char **argv)
                 }
             }
             //Sending the action
-            if (!client.call(srv)) {
-               ROS_ERROR("Failed to call service human_manager/human_action");
+            if (client.call(srv)) {
+                if(humanAction.second.name == "pick"){
+                    pm_->objectInHumanHand_ = humanAction.second.parameters[0];
+                }else if(humanAction.second.name == "place" || humanAction.second.name == "drop"){
+                    pm_->objectInHumanHand_ = "NONE";
+                }
+            }else{
+                ROS_ERROR("Failed to call service human_manager/human_action");
             }
         }else{
             //if hatp was waiting for an action and the human does not perform it we need a new plan
