@@ -106,6 +106,28 @@ bool PlannersManager::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
     return false;
 }
 
+/**
+* \brief Function which say if each facts are on the databases
+* @param facts the facts
+* \return a vector of bool representing for each fact if it is on the database
+*/
+std::vector<bool> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts){
+
+    std::vector<bool> res;
+    ros::ServiceClient client = node_->serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
+    toaster_msgs::ExecuteDB srv;
+    srv.request.command = "ARE_IN_TABLE";
+    srv.request.type = "INDIV";
+    srv.request.agent = robotName_;
+    srv.request.facts = facts;
+    if (client.call(srv)){
+        res = srv.response.boolResults;
+    }else{
+       ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
+    }
+    return res;
+}
+
 void PlannersManager::resetDB(){
 
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
@@ -125,21 +147,18 @@ void PlannersManager::resetDB(){
  * */
 std::string PlannersManager::computeWS(std::vector<toaster_msgs::Fact> WSFacts){
 
-    std::string result;
-    int i = 0;
-    for(std::vector<toaster_msgs::Fact>::iterator it = WSFacts.begin(); it != WSFacts.end(); it++){
-        //we look if the fact exists in the database
-        std::vector<toaster_msgs::Fact> facts;
-        facts.push_back(*it);
-        if(AreFactsInDB(facts)){
-            result = result + "1";
+    std::string ws;
+    //we look if the facts exists in the database
+    std::vector<bool> results = AreFactsInDBIndiv(WSFacts);
+    for(std::vector<bool>::iterator it = results.begin(); it != results.end(); it++){
+        if(*it){
+            ws = ws + "1";
         }else{
-            result = result + "0";
+            ws = ws + "0";
         }
-        i++;
     }
 
-    return result;
+    return ws;
 }
 
 /**
@@ -442,11 +461,13 @@ roboergosum_msgs::Action PlannersManager::getActionFromId(int id){
     }
 
     if(action.name == "give" || action.name == "grab"){
+        //we add receiver/sender
         action.parameters.push_back("HERAKLES_HUMAN1");
         return action;
     }
 
     if(action.name == "navigate"){
+        //we add the target location
         if(robotPose_ == "initialLocation"){
             action.parameters.push_back("secondLocation");
         }else{
@@ -456,4 +477,45 @@ roboergosum_msgs::Action PlannersManager::getActionFromId(int id){
     }
 
     return action;
+}
+
+/**
+ * \brief Function which return the id corresponding to an action
+ * @param action the instantiated action corresponding to the id
+ * @return the id of the action
+ * */
+int PlannersManager::getIdFromAction(roboergosum_msgs::Action action){
+
+    int nbActions;
+    node_->getParam("actions/nbActions", nbActions);
+    for(int i = 0; i < nbActions; i++){
+        std::stringstream ss;
+        ss << i;
+        std::string idString = ss.str();
+
+        //get the action name
+        std::string name;
+        std::string nameTopic = "actions/" + idString + "/name";
+        node_->getParam(nameTopic, name);
+        if(action.name == name){
+            if(name == "pick"){
+                std::string object;
+                std::string objectTopic = "actions/" + idString + "/object";
+                node_->getParam(objectTopic, object);
+                if(object == action.parameters[0]){
+                    return i;
+                }
+            }else if(name == "place"){
+                std::string support;
+                std::string supportTopic = "actions/" + idString + "/support";
+                node_->getParam(supportTopic, support);
+                if(support == action.parameters[1]){
+                    return i;
+                }
+            }else{
+                return i;
+            }
+        }
+    }
+
 }

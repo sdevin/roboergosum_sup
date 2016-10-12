@@ -4,12 +4,13 @@ project(roboergosum_msgs)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
-  std_msgs
   message_generation
   actionlib
   actionlib_msgs
   toaster_msgs
+  std_msgs
 )
+
 add_message_files(
    FILES
    Action.msg
@@ -29,9 +30,9 @@ add_action_files(
 
 generate_messages(
    DEPENDENCIES
-   std_msgs
    actionlib_msgs
    toaster_msgs
+   std_msgs
 )
 
 catkin_package(

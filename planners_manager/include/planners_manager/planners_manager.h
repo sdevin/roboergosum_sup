@@ -33,6 +33,7 @@
 #include "BP_experiment/StateReward.h"
 #include "BP_experiment/ExpertsActiv.h"
 #include "BP_experiment/ExpertPlanning.h"
+#include "BP_experiment/Actions.h"
 
 
 /**
@@ -51,6 +52,7 @@ public:
     std::pair<bool, roboergosum_msgs::Plan> GetHATPPlan(bool toBlock, roboergosum_msgs::Action actionToBlock);
     void removeHATPFlags();
     roboergosum_msgs::Action getActionFromId(int id);
+    int getIdFromAction(roboergosum_msgs::Action action);
 
     bool needEnvReset_; /**< true if the environment need to be put reset to the initial set-up*/
     std::ofstream fileLog_; /**< the file whre to log info*/
@@ -66,6 +68,7 @@ private:
     void resetDB();
     roboergosum_msgs::Plan convertPlan(hatp_msgs::Plan plan);
     void addHATPFlags(roboergosum_msgs::Action actionToBlock);
+    std::vector<bool> AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts);
 };
 
 #endif // PLANNERSMANAGER_H

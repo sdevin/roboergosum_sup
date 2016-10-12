@@ -281,6 +281,7 @@ int main (int argc, char **argv)
   initObjects();
 
   ros::Publisher statereward_pub = node.advertise<BP_experiment::StateReward>("/bp experiment/statereward", 1);
+  ros::Publisher hatp_pub = node.advertise<BP_experiment::Actions>("/bp experiment/goaldirectedAction", 1);
 
   actionlib::SimpleActionClient<roboergosum_msgs::ActionManagerAction> actionClient("roboergosum/action_manager", true);
 
@@ -333,7 +334,21 @@ int main (int argc, char **argv)
         }
         //then we get the corresponding action
         action = getNextHATP();
-        //TODO: we publish the chosen action
+        //we publish the corresponding id
+        int idAction = pm_->getIdFromAction(action);
+        int nbActions;
+        node_->getParam("actions/nbActions", nbActions);
+        BP_experiment::Actions HATPAction;
+        HATPAction.actionID = idAction;
+        HATPAction.source = "MB";
+        for(int i = 0; i < nbActions; i++){
+            if(i == idAction){
+                HATPAction.actionProbDistribution.push_back(1-(nbActions-1)*0.01);
+            }else{
+                HATPAction.actionProbDistribution.push_back(0.01);
+            }
+        }
+        hatp_pub.publish(HATPAction);
      }
 
      bool humanActionNeeded = false;

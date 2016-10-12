@@ -8,10 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   roboergosum_msgs
+  BP_experiment
 )
 
 catkin_package(
-   CATKIN_DEPENDS toaster_msgs roscpp rospy std_msgs roboergosum_msgs
+   CATKIN_DEPENDS toaster_msgs roscpp rospy std_msgs roboergosum_msgs BP_experiment
 )
 
 include_directories(
