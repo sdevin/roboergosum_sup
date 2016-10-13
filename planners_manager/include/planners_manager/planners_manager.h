@@ -60,6 +60,8 @@ public:
     std::string objectInHand_; /**< the object the robot has in hand*/
     std::string objectInHumanHand_; /**< the object the human has in hand*/
     std::string robotPose_; /**< position of the robot*/
+    int nbActions_; /**< nb of actions decided since expe begin*/
+    ros::Time nodeStartTime_; /**< time at the start of the node*/
 protected:
 
 private:

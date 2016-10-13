@@ -21,25 +21,25 @@ actions:
         object: "BLUE_TAPE3"
     6:
         name: "place"
-        object: "PLACEMENT_1"
+        object: "PLACEMAT_1"
     7:
         name: "place"
-        support: "PLACEMENT_2"
+        support: "PLACEMAT_2"
     8:
         name: "place"
-        support: "PLACEMENT_3"
+        support: "PLACEMAT_3"
     9:
         name: "place"
-        support: "PLACEMENT_4"
+        support: "PLACEMAT_4"
     10:
         name: "place"
-        support: "PLACEMENT_5"
+        support: "PLACEMAT_5"
     11:
         name: "place"
-        support: "PLACEMENT_6"
+        support: "PLACEMAT_6"
     12:
         name: "place"
-        support: "PLACEMENT_7"
+        support: "PLACEMAT_7"
     13:
         name: "drop"
     14:

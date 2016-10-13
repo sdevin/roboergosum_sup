@@ -60,7 +60,7 @@ public:
     bool leftGripperMoving_; /**< flag which is true if the robot left gripper is moving*/
     bool torsoMoving_; /**< flag which is true if the robot torso is moving*/
     bool stopOrder_; /**< flag true when the robot has to stop its action*/
-    bool humanLazy_; /**< flag true if we consider that the human will not contribute to handover*/
+    bool humanNoHandover_; /**< flag true if we consider that the human will not contribute to handover*/
 
     std::string rightArmPose_; /**< actuel robot right arm pose*/
     std::string leftArmPose_; /**< actuel robot left arm pose*/

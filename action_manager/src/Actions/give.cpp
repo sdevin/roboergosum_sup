@@ -146,7 +146,7 @@ bool Give::exec(){
 bool Give::post(){
 
     //if we consider the huma lazy, the action failed
-    if(connector_->humanLazy_){
+    if(connector_->humanNoHandover_){
         return false;
     }
 

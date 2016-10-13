@@ -2,7 +2,7 @@
 entities:
     agents: ['PR2_ROBOT', 'HERAKLES_HUMAN1']
     objects: ['GREEN_TAPE1', 'GREEN_TAPE2', 'GREEN_TAPE3', 'BLUE_TAPE1', 'BLUE_TAPE2', 'BLUE_TAPE3']
-    supports: ['TABLE_4']
+    supports: ['TABLE_4', 'PLACEMAT_1', 'PLACEMAT_2', 'PLACEMAT_3', 'PLACEMAT_4', 'PLACEMAT_5', 'PLACEMAT_6', 'PLACEMAT_7']
     containers: ['BLUE_TRASHBIN', 'GREEN_TRASHBIN']
     locations: ['initialLocation', 'secondLocation']
     objectsHeight:

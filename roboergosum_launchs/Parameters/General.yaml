@@ -9,7 +9,7 @@ roboergosum:
     simu: true
     waitActionServer: 10.0
     humanRightHand: 'rightHand'
+    humanNoHandover: false
     humanLazy: false
-    humanProactive: true
     expertsMode: 'hatp' #hatp, mf or both
     HATPMethodName: 'Clean'

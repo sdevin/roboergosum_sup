@@ -14,7 +14,7 @@ bool toBlockHATP = false;
 roboergosum_msgs::Action actionToBlockHATP;
 float reward;
 std::vector<toaster_msgs::Fact> WSFacts, rewardFacts;
-bool humanLazy, humanProactive;
+bool humanLazy, humanNoHandover;
 std::map<std::string, std::string> objectsColor;
 std::vector<std::string> taskObjects, taskContainers;
 std::string robotName, humanName;
@@ -67,7 +67,7 @@ std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
         }
     }
     //then if the human is not lazy, we look for blue objects
-    if(!humanLazy){
+    if(!humanNoHandover){
         for(std::vector<std::string>::iterator it = objetsNearHuman.begin(); it != objetsNearHuman.end(); it++){
             if(objectsColor[*it] == "blue"){
                 //the human pick the object
@@ -83,7 +83,7 @@ std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
     }
 
     //finally, if the human is proactive we look for green objects in the middle of the table
-    if(!humanProactive){
+    if(!humanLazy){
         sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate = 'isInArea' and target_id = '"+ middleArea +"'";
         std::vector<std::string> objetsMiddle = pm_->executeSQL(sqlCommand);
         for(std::vector<std::string>::iterator it = objetsMiddle.begin(); it != objetsMiddle.end(); it++){
@@ -266,7 +266,7 @@ int main (int argc, char **argv)
   ROS_INFO("[planners_manager] Init planners_manager");
 
   node_->getParam("roboergosum/humanLazy", humanLazy);
-  node_->getParam("roboergosum/humanProactive", humanProactive);
+  node_->getParam("roboergosum/humanNoHandover", humanNoHandover);
   node_->getParam("roboergosum/robotName", robotName);
   node_->getParam("roboergosum/humanName", humanName);
   node_->getParam("environment/humanArea", humanArea);
@@ -352,10 +352,12 @@ int main (int argc, char **argv)
      }
 
      bool humanActionNeeded = false;
+     std::string state;
      //if the return action is a wait action we wait 2 seconds
      if(action.name == "wait"){
          ros::Duration(2.0).sleep();
          humanActionNeeded = true;
+         state = "SUCCEED";
      }else{
          //else we execute the returned action and update HATP plan if one
          roboergosum_msgs::ActionManagerGoal goal;
@@ -365,6 +367,7 @@ int main (int argc, char **argv)
          if(!finishedBeforeTimeout){
              ROS_ERROR("roboergosum/action_manager action did not finish before time out");
          }else if(actionClient.getResult()->report){
+             state = "SUCCEED";
              if(!(action.name == "give" || action.name == "grab")){
                  //the human acts only if the robot performed an action (including wait) which was not an handover
                  humanActionNeeded = true;
@@ -387,6 +390,11 @@ int main (int argc, char **argv)
                  pm_->robotPose_ = action.parameters[0];
              }
          }else{
+             if(actionClient.getResult()->state == "PREC"){
+                 state = "NO_EXEC";
+             }else{
+                 state = "FAILED";
+             }
              //the action failed
              if(expertToCall == "hatp"){
                  //if it was an action from hatp, a new plan is needed
@@ -396,6 +404,13 @@ int main (int argc, char **argv)
              }
          }
      }
+     pm_->nbActions_ ++;
+
+     //we log action result
+     ros::Time now = ros::Time::now();
+     ros::Duration t = now - pm_->nodeStartTime_;
+     float time = t.toSec();
+     pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << expertToCall << " " << state << std::endl;
 
      //we execute human action if needed and update HATP plan if one
      if(humanActionNeeded){
@@ -416,15 +431,33 @@ int main (int argc, char **argv)
                 }
             }
             //Sending the action
+            std::string humanState;
             if (client.call(srv)) {
                 if(humanAction.second.name == "pick"){
                     pm_->objectInHumanHand_ = humanAction.second.parameters[0];
                 }else if(humanAction.second.name == "place" || humanAction.second.name == "drop"){
                     pm_->objectInHumanHand_ = "NONE";
                 }
+                //update HATP plan
+                if(hasHATPPlan){
+                   updateHATPPlan(action);
+                   if(hasHATPPlan){
+                       humanState = "EXPECTED";
+                   }else{
+                       humanState = "UNEXPECTED";
+                   }
+                }else{
+                   humanState = "NO_PLAN";
+                }
             }else{
                 ROS_ERROR("Failed to call service human_manager/human_action");
             }
+
+            //we log action result
+            now = ros::Time::now();
+            t = now - pm_->nodeStartTime_;
+            time = t.toSec();
+            pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << humanState << std::endl;
         }else{
             //if hatp was waiting for an action and the human does not perform it we need a new plan
             if(action.name == "wait" && expertToCall == "hatp"){

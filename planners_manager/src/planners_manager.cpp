@@ -17,6 +17,8 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
     objectInHand_ = "NONE";
     objectInHumanHand_ = "NONE";
     robotPose_ = "initialLocation";
+    nbActions_ = 0;
+    nodeStartTime_ = ros::Time::now();
 
     //open logs files
     std::string idExp;
@@ -54,42 +56,85 @@ void PlannersManager::setEnvironment(){
 
     toaster_msgs::ObjectListStamped objectList;
     toaster_msgs::SetEntityPose srv;
-    try{
-        //get list of entities to place
-        std::vector<std::string> listObjects;
-        node_->getParam("/environment/objectsToPlace", listObjects);
-        for(std::vector<std::string>::iterator it = listObjects.begin(); it != listObjects.end(); it++){
-               std::string posex = "/environment/objectsPose/" + *it + "/x" ;
-               std::string posey = "/environment/objectsPose/" + *it + "/y" ;
-               std::string posez = "/environment/objectsPose/" + *it + "/z" ;
-               std::string rotationTopic = "/environment/objectsPose/" + *it + "/rotation" ;
-               double x, y, z;
-               bool rotation;
-               node_->getParam(posex, x);
-               node_->getParam(posey, y);
-               node_->getParam(posez, z);
-               node_->getParam(rotationTopic, rotation);
-               srv.request.id = *it;
-               srv.request.type = "object";
-               srv.request.pose.position.x = x;
-               srv.request.pose.position.y = y;
-               srv.request.pose.position.z = z;
-               srv.request.pose.orientation.x = 0.0;
-               srv.request.pose.orientation.y = 0.0;
-               if(rotation){
-                   srv.request.pose.orientation.z = 0.7;
-                   srv.request.pose.orientation.w = 0.7;
-               }else{
-                   srv.request.pose.orientation.z = 0.0;
-                   srv.request.pose.orientation.w = 1.0;
-               }
-               if (!client.call(srv)){
-                 ROS_ERROR("Failed to call service toaster_simu/set_entity_pose");
-               }
-        }
+
+    //get list of entities to place
+    std::vector<std::string> listSupports;
+    node_->getParam("/environment/objectsToPlace", listSupports);
+    for(std::vector<std::string>::iterator it = listSupports.begin(); it != listSupports.end(); it++){
+           std::string posex = "/environment/objectsPose/" + *it + "/x" ;
+           std::string posey = "/environment/objectsPose/" + *it + "/y" ;
+           std::string posez = "/environment/objectsPose/" + *it + "/z" ;
+           std::string rotationTopic = "/environment/objectsPose/" + *it + "/rotation" ;
+           double x, y, z;
+           bool rotation;
+           node_->getParam(posex, x);
+           node_->getParam(posey, y);
+           node_->getParam(posez, z);
+           node_->getParam(rotationTopic, rotation);
+           srv.request.id = *it;
+           srv.request.type = "object";
+           srv.request.pose.position.x = x;
+           srv.request.pose.position.y = y;
+           srv.request.pose.position.z = z;
+           srv.request.pose.orientation.x = 0.0;
+           srv.request.pose.orientation.y = 0.0;
+           if(rotation){
+               srv.request.pose.orientation.z = 0.7;
+               srv.request.pose.orientation.w = 0.7;
+           }else{
+               srv.request.pose.orientation.z = 0.0;
+               srv.request.pose.orientation.w = 1.0;
+           }
+           if (!client.call(srv)){
+             ROS_ERROR("Failed to call service toaster_simu/set_entity_pose");
+           }
     }
-    catch(const std::exception & e){
-        ROS_WARN("[action_executor] Failed to read toaster poster");
+
+    //assign randomly objects to placement
+    std::vector<std::string> listObjects;
+    node_->getParam("/environment/objectsToRandomlyPlace", listObjects);
+    std::map<int,int> assignementMap;
+    for(int i = 0; i < listSupports.size(); i++){
+        assignementMap[i] = i;
+    }
+    int nbSupports = listSupports.size();
+    for(std::vector<std::string>::iterator it = listObjects.begin(); it != listObjects.end(); it++){
+        //we choose a support
+        int nb = rand()%nbSupports;
+        int nbChosen = assignementMap[nb];
+        //we place the object on the support
+        std::string posex = "/environment/objectsPose/" + listSupports[nbChosen] + "/x" ;
+        std::string posey = "/environment/objectsPose/" + listSupports[nbChosen] + "/y" ;
+        std::string posez = "/environment/objectsPose/" + listSupports[nbChosen] + "/z" ;
+        std::string rotationTopic = "/environment/objectsPose/" + listSupports[nbChosen] + "/rotation" ;
+        double x, y, z;
+        bool rotation;
+        node_->getParam(posex, x);
+        node_->getParam(posey, y);
+        node_->getParam(posez, z);
+        node_->getParam(rotationTopic, rotation);
+        srv.request.id = *it;
+        srv.request.type = "object";
+        srv.request.pose.position.x = x;
+        srv.request.pose.position.y = y;
+        srv.request.pose.position.z = z;
+        srv.request.pose.orientation.x = 0.0;
+        srv.request.pose.orientation.y = 0.0;
+        if(rotation){
+            srv.request.pose.orientation.z = 0.7;
+            srv.request.pose.orientation.w = 0.7;
+        }else{
+            srv.request.pose.orientation.z = 0.0;
+            srv.request.pose.orientation.w = 1.0;
+        }
+        if (!client.call(srv)){
+          ROS_ERROR("Failed to call service toaster_simu/set_entity_pose");
+        }
+        //we remove the support from possible supports
+        nbSupports --;
+        for(int i = nbChosen; i < nbSupports; i++){
+            assignementMap[i] = assignementMap[i+1];
+        }
     }
 }
 
@@ -116,7 +161,7 @@ bool PlannersManager::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
 /**
 * \brief Function which say if each facts are on the databases
 * @param facts the facts
-* \return a vector of bool representing for each fact if it is on the database
+* @return a vector of bool representing for each fact if it is on the database
 */
 std::vector<std::string> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts){
 
@@ -135,6 +180,9 @@ std::vector<std::string> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_
     return res;
 }
 
+/**
+* \brief Reset the database
+*/
 void PlannersManager::resetDB(){
 
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::ExecuteDB>("database_manager/execute");
@@ -262,7 +310,14 @@ std::pair<bool, roboergosum_msgs::Plan> PlannersManager::GetHATPPlan(bool toBloc
 
     //We ask a plan to HATP
     service.request.request.type="plan";
+    ros::Time start = ros::Time::now();
     if(client.call(service)){
+       ros::Time now = ros::Time::now();
+       ros::Duration d = now - start;
+       ros::Duration t = now - nodeStartTime_;
+       float duration = d.toSec();
+       float time = t.toSec();
+       fileLogHATP_ << time << " " << nbActions_ << " " << duration << std::endl;
        if(service.response.solution.report == "OK"){
           answer.first = true;
           answer.second = convertPlan(service.response.solution);

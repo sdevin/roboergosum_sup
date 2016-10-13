@@ -118,7 +118,7 @@ bool Grab::exec(){
         return false;
     }
     //if we consider the human lazy, the action failed
-    if(connector_->humanLazy_){
+    if(connector_->humanNoHandover_){
         PutInHumanHand(object_, giver_);
         return false;
     }
