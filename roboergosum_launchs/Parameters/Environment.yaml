@@ -3,41 +3,41 @@ environment:
     humanArea: 'humanArea'
     middleArea: 'middleArea'
     robotArea: 'robotArea'
-    objectsToPlace: ['PLACEMAT_1', 'PLACEMAT_2', 'PLACEMAT_3', 'PLACEMAT_4', 'PLACEMAT_5', 'PLACEMAT_6', 'PLACEMAT_7']
+    supportsToPlace: ['PLACEMAT_1', 'PLACEMAT_2', 'PLACEMAT_3', 'PLACEMAT_4', 'PLACEMAT_5', 'PLACEMAT_6', 'PLACEMAT_7']
     objectsToRandomlyPlace: ['GREEN_TAPE1', 'GREEN_TAPE2', 'GREEN_TAPE3', 'BLUE_TAPE1', 'BLUE_TAPE2', 'BLUE_TAPE3']
     objectsPose:
         PLACEMAT_1:
-            x: 0.0
-            y: 0.087
-            z: 0.75
+            x: 4.4
+            y: 3.6
+            z: 0.72
             rotation: false
         PLACEMAT_2:
-            x:  0.0
-            y: -0.087
-            z: 0.75
+            x: 4.35
+            y: 3.4
+            z: 0.72
             rotation: false
         PLACEMAT_3:
-            x: 0.201
-            y: 0.6339
-            z: 0.75
+            x: 4.6
+            y: 3.7
+            z: 0.72
             rotation: false
         PLACEMAT_4:
-            x: 0.09
-            y: 0.4912
-            z: 0.75
+            x: 4.6
+            y: 4.3
+            z: 0.72
             rotation: false
         PLACEMAT_5:
-            x: -0.1308
-            y: -0.4312
-            z: 0.75
-            rotation: false
+            x: 4.75
+            y: 4.3
+            z: 0.72
+            rotation: true
         PLACEMAT_6:
-            x: -0.1256
-            y: -0.6222
-            z: 0.75
+            x: 4.8
+            y: 4.5
+            z: 0.72
             rotation: false
         PLACEMAT_7:
-            x: 0.00058
-            y: -0.1608
-            z: 0.75
+            x: 4.9
+            y: 4.6
+            z: 0.72
             rotation: false

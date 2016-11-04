@@ -17,6 +17,7 @@
 #include <boost/thread/locks.hpp>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 
 #include "toaster_msgs/SetEntityPose.h"
@@ -72,6 +73,7 @@ private:
     roboergosum_msgs::Plan convertPlan(hatp_msgs::Plan plan);
     void addHATPFlags(roboergosum_msgs::Action actionToBlock);
     std::vector<std::string> AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts);
+    ros::Publisher robotPose_pub_;
 };
 
 #endif // PLANNERSMANAGER_H

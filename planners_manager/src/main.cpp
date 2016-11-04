@@ -217,9 +217,9 @@ void initWSFacts(){
         std::string nbFact = ss.str();
         //we retrive the fact
         toaster_msgs::Fact fact;
-        std::string subjectTopic = "worldState/facts/" + nbFact + "subject";
-        std::string propertyTopic = "worldState/facts/" + nbFact + "property";
-        std::string targetTopic = "worldState/facts/" + nbFact + "target";
+        std::string subjectTopic = "worldState/facts/nb" + nbFact + "/subject";
+        std::string propertyTopic = "worldState/facts/nb" + nbFact + "/property";
+        std::string targetTopic = "worldState/facts/nb" + nbFact + "/target";
         node_->getParam(subjectTopic, fact.subjectId);
         node_->getParam(propertyTopic, fact.property);
         node_->getParam(targetTopic, fact.targetId);
@@ -241,9 +241,9 @@ void initRewardFacts(){
         std::string nbFact = ss.str();
         //we retrive the fact
         toaster_msgs::Fact fact;
-        std::string subjectTopic = "reward/facts/" + nbFact + "subject";
-        std::string propertyTopic = "reward/facts/" + nbFact + "property";
-        std::string targetTopic = "reward/facts/" + nbFact + "target";
+        std::string subjectTopic = "reward/facts/nb" + nbFact + "/subject";
+        std::string propertyTopic = "reward/facts/nb" + nbFact + "/property";
+        std::string targetTopic = "reward/facts/nb" + nbFact + "/target";
         node_->getParam(subjectTopic, fact.subjectId);
         node_->getParam(propertyTopic, fact.property);
         node_->getParam(targetTopic, fact.targetId);
@@ -280,8 +280,8 @@ int main (int argc, char **argv)
   initRewardFacts();
   initObjects();
 
-  ros::Publisher statereward_pub = node.advertise<BP_experiment::StateReward>("/bp experiment/statereward", 1);
-  ros::Publisher hatp_pub = node.advertise<BP_experiment::Actions>("/bp experiment/goaldirectedAction", 1);
+  ros::Publisher statereward_pub = node.advertise<BP_experiment::StateReward>("/bp_experiment/statereward", 1);
+  ros::Publisher hatp_pub = node.advertise<BP_experiment::Actions>("/bp_experiment/goaldirectedAction", 1);
 
   actionlib::SimpleActionClient<roboergosum_msgs::ActionManagerAction> actionClient("roboergosum/action_manager", true);
 

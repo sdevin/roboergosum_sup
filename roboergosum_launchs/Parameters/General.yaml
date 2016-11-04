@@ -12,4 +12,4 @@ roboergosum:
     humanNoHandover: false
     humanLazy: false
     expertsMode: 'hatp' #hatp, mf or both
-    HATPMethodName: 'Clean'
+    HATPMethodName: 'ThrowAll'

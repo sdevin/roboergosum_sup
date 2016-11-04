@@ -7,12 +7,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   roboergosum_msgs
   BP_experiment
 )
 
 catkin_package(
-   CATKIN_DEPENDS toaster_msgs roscpp rospy std_msgs roboergosum_msgs BP_experiment
+   CATKIN_DEPENDS toaster_msgs roscpp rospy std_msgs roboergosum_msgs BP_experiment geometry_msgs
 )
 
 include_directories(

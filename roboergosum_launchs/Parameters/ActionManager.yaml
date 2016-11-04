@@ -13,15 +13,15 @@ action_manager:
     locationsPose:
         initialLocation:
             x: 4.0
-            y: 4.0
+            y: 4.2
             x_rot: 0.0
             y_rot: 0.0
             z_rot: 0.0
-            w_rot: 0.0
+            w_rot: 1.0
         secondLocation:
-            x: 5.0
-            y: 5.0
+            x: 4.6
+            y: 5.1
             x_rot: 0.0
             y_rot: 0.0
             z_rot: 0.0
-            w_rot: 0.0
+            w_rot: 1.0

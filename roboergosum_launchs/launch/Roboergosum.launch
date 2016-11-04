@@ -4,7 +4,6 @@
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/General.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/ActionManager.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Entities.yaml" />
-        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/HumanMonitoring.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Environment.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/WorldState.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Reward.yaml" />

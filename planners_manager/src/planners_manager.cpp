@@ -20,6 +20,8 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
     nbActions_ = 0;
     nodeStartTime_ = ros::Time::now();
 
+    robotPose_pub_ = node_->advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 1);
+
     //open logs files
     std::string idExp;
     node_->getParam("/roboergosum/idExp", idExp);
@@ -46,6 +48,19 @@ PlannersManager::~PlannersManager(){
  * */
 void PlannersManager::setEnvironment(){
 
+    //we put the obot at initial pose
+    /*geometry_msgs::PoseWithCovarianceStamped msg_pose;
+    msg_pose.header.frame_id = "map";
+    msg_pose.pose.pose.position.x = 4.0;
+    msg_pose.pose.pose.position.y = 4.2;
+    msg_pose.pose.pose.orientation.x = 0.0;
+    msg_pose.pose.pose.orientation.y = 0.0;
+    msg_pose.pose.pose.orientation.z = 0.0;
+    msg_pose.pose.pose.orientation.w = 1.0;
+    msg_pose.pose.covariance = {0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942};
+    robotPose_pub_.publish(msg_pose);*/
+    system("rostopic pub /initialpose geometry_msgs/PoseWithCovarianceStamped '{ header: { frame_id: \"/map\" }, pose: { pose: { position: { x: 4.0, y: 4.2 }, orientation: { x: 0, y: 0, z: 0.0, w: 1.0 } }, covariance: [ 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] } }' & ");
+
     //we reset the database to not have old facts in it
     resetDB();
     objectInHand_ = "NONE";
@@ -56,45 +71,14 @@ void PlannersManager::setEnvironment(){
 
     toaster_msgs::ObjectListStamped objectList;
     toaster_msgs::SetEntityPose srv;
-
-    //get list of entities to place
     std::vector<std::string> listSupports;
-    node_->getParam("/environment/objectsToPlace", listSupports);
-    for(std::vector<std::string>::iterator it = listSupports.begin(); it != listSupports.end(); it++){
-           std::string posex = "/environment/objectsPose/" + *it + "/x" ;
-           std::string posey = "/environment/objectsPose/" + *it + "/y" ;
-           std::string posez = "/environment/objectsPose/" + *it + "/z" ;
-           std::string rotationTopic = "/environment/objectsPose/" + *it + "/rotation" ;
-           double x, y, z;
-           bool rotation;
-           node_->getParam(posex, x);
-           node_->getParam(posey, y);
-           node_->getParam(posez, z);
-           node_->getParam(rotationTopic, rotation);
-           srv.request.id = *it;
-           srv.request.type = "object";
-           srv.request.pose.position.x = x;
-           srv.request.pose.position.y = y;
-           srv.request.pose.position.z = z;
-           srv.request.pose.orientation.x = 0.0;
-           srv.request.pose.orientation.y = 0.0;
-           if(rotation){
-               srv.request.pose.orientation.z = 0.7;
-               srv.request.pose.orientation.w = 0.7;
-           }else{
-               srv.request.pose.orientation.z = 0.0;
-               srv.request.pose.orientation.w = 1.0;
-           }
-           if (!client.call(srv)){
-             ROS_ERROR("Failed to call service toaster_simu/set_entity_pose");
-           }
-    }
+    node_->getParam("/environment/supportsToPlace", listSupports);
 
     //assign randomly objects to placement
     std::vector<std::string> listObjects;
     node_->getParam("/environment/objectsToRandomlyPlace", listObjects);
     std::map<int,int> assignementMap;
-    for(int i = 0; i < listSupports.size(); i++){
+    for(int i = 1; i < listSupports.size() + 1; i++){
         assignementMap[i] = i;
     }
     int nbSupports = listSupports.size();
@@ -132,7 +116,14 @@ void PlannersManager::setEnvironment(){
         }
         //we remove the support from possible supports
         nbSupports --;
-        for(int i = nbChosen; i < nbSupports; i++){
+        int nbStart;
+        for(int i = 1; i < nbSupports + 1; i++){
+            if(assignementMap[i] == nbChosen){
+                nbStart = i;
+                break;
+            }
+        }
+        for(int i = nbStart; i < nbSupports + 1; i++){
             assignementMap[i] = assignementMap[i+1];
         }
     }
@@ -390,7 +381,7 @@ void PlannersManager::addHATPFlags(roboergosum_msgs::Action actionToBlock){
 
     //first we look for the handover flag
     fact.subjectId = "HERAKLES_HUMAN1";
-    fact.property = "performHandover";
+    fact.property = "canNotPerformHandover";
     fact.targetId = "true";
     if(actionToBlock.name == "give" || actionToBlock.name == "grab"){
         toAddFacts.push_back(fact);
@@ -417,7 +408,7 @@ void PlannersManager::addHATPFlags(roboergosum_msgs::Action actionToBlock){
         srv.request.add = true;
         fact.subjectId = actionToBlock.parameters[0];
         fact.property = "canNotBePicked";
-        fact.targetId = "true";
+        fact.targetId = robotName_;
         toAddFacts.push_back(fact);
         srv.request.facts = toAddFacts;
         if (!client.call(srv)){
@@ -455,7 +446,7 @@ void PlannersManager::removeHATPFlags(){
     //we first remove the old ones
     fact.subjectId = "NULL";
     fact.property = "canNotBePicked";
-    fact.targetId = "true";
+    fact.targetId = robotName_;
     toRmFacts.push_back(fact);
 
     srv.request.add = false;
@@ -480,11 +471,11 @@ roboergosum_msgs::Action PlannersManager::getActionFromId(int id){
     action.actors.push_back(robotName_);
 
     //get the action name
-    std::string nameTopic = "actions/" + idString + "/name";
+    std::string nameTopic = "actions/nb" + idString + "/name";
     node_->getParam(nameTopic, action.name);
     if(action.name == "pick"){
         //we look for the object
-        std::string objectTopic = "actions/" + idString + "/object";
+        std::string objectTopic = "actions/nb" + idString + "/object";
         std::string object;
         node_->getParam(objectTopic, object);
         action.parameters.push_back(object);
@@ -503,7 +494,7 @@ roboergosum_msgs::Action PlannersManager::getActionFromId(int id){
 
     if(action.name == "place"){
         //we look for the support
-        std::string supportTopic = "actions/" + idString + "/support";
+        std::string supportTopic = "actions/nb" + idString + "/support";
         std::string support;
         node_->getParam(supportTopic, support);
         action.parameters.push_back(support);
