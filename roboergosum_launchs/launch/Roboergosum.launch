@@ -8,6 +8,7 @@
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/WorldState.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Reward.yaml" />
         <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/Actions.yaml" />
+        <rosparam command="load" file="$(find roboergosum_launchs)/Parameters/HATP.yaml" />
 
         <node name="action_manager" pkg="action_manager" type="action_manager" output="screen" />  <!-- Launch the action manager -->
         <node name="human_manager" pkg="human_manager" type="human_manager" output="screen" />  <!-- Launch the human manager -->

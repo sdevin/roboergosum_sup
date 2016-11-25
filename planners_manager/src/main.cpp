@@ -27,35 +27,267 @@ std::string expertsMode;
  * */
 std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
 
+
     std::pair<bool, roboergosum_msgs::Action> result;
     result.first = false;
 
+    std::vector<toaster_msgs::Fact> WS;
+    toaster_msgs::Fact fact;
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "isHoldBy";
+    fact.targetId = humanName;
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "IsInArea";
+    fact.targetId = humanArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "IsInArea";
+    fact.targetId = robotArea;
+    fact.targetOwnerId = "TABLE_4";
+    WS.push_back(fact);
+    fact.targetOwnerId = "";
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "isIn";
+    fact.targetId = "BLUE_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "isIn";
+    fact.targetId = "BLUE_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "isIn";
+    fact.targetId = "BLUE_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "isIn";
+    fact.targetId = "GREEN_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "isIn";
+    fact.targetId = "GREEN_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "isIn";
+    fact.targetId = "GREEN_TRASHBIN";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "isHoldBy";
+    fact.targetId = "PR2_ROBOT";
+    WS.push_back(fact);
+
+    std::vector<std::string> WSRes = pm_->AreFactsInDBIndiv(WS);
+
+    //we look the blue objects in the human hand
+    //isHoldBy facts for blue
+    for(int i = 0; i<3; i++){
+        if(WSRes[i] == "true"){
+            //the human drop the object in the box
+            result.first = true;
+            roboergosum_msgs::Action action;
+            action.name = "drop";
+            action.actors.push_back(humanName);
+            if(i == 0){
+                action.parameters.push_back("BLUE_TAPE1");
+            }else if(i == 1){
+                action.parameters.push_back("BLUE_TAPE2");
+            }else if(i == 2){
+                action.parameters.push_back("BLUE_TAPE3");
+            }
+            action.parameters.push_back("BLUE_TRASHBIN");
+            result.second = action;
+            return result;
+        }
+    }
+
+    //we look the green objects in the human hand
+    for(int i = 3; i<6; i++){//isHoldBy facts for green
+        if(WSRes[i] == "true"){
+            return result;
+        }
+    }
+
+    //then if the human has empty hands, we look in the object near him
+    for(int i = 6; i<9; i++){//IsInArea human facts for blue
+        if(WSRes[i] == "true" && WSRes[i+12] == "false" && WSRes[i+6] == "false" && WSRes[i+18] == "false"){//not in trashbin and in robotReachable
+            result.first = true;
+            roboergosum_msgs::Action action;
+            action.name = "pick";
+            action.actors.push_back(humanName);
+            if(i == 6){
+                action.parameters.push_back("BLUE_TAPE1");
+            }else if(i == 7){
+                action.parameters.push_back("BLUE_TAPE2");
+            }else if(i == 8){
+                action.parameters.push_back("BLUE_TAPE3");
+            }
+            result.second = action;
+            return result;
+        }
+    }
+
+    //finally, if the human is proactive we look for blue objects in the middle of the table
+    if(!humanLazy){
+        for(int i = 6; i<9; i++){//IsInArea middle facts for blue
+            if(WSRes[i] == "true" && WSRes[i+18] == "false" && WSRes[i+12] == "false"){//not in trashbin
+                result.first = true;
+                roboergosum_msgs::Action action;
+                action.name = "pick";
+                action.actors.push_back(humanName);
+                if(i == 6){
+                    action.parameters.push_back("BLUE_TAPE1");
+                }else if(i == 7){
+                    action.parameters.push_back("BLUE_TAPE2");
+                }else if(i == 8){
+                    action.parameters.push_back("BLUE_TAPE3");
+                }
+                result.second = action;
+                return result;
+            }
+        }
+    }
+
+    //then if the human is not lazy, we look for green objects
+    if(!humanNoHandover){
+        for(int i = 9; i<12; i++){//IsInArea human facts for green
+            if(WSRes[i] == "true" && WSRes[i+6] == "false"&& WSRes[i+12] == "false" && WSRes[i+18] == "false"){//not in trashbin and in robotReachable
+                result.first = true;
+                roboergosum_msgs::Action action;
+                action.name = "pick";
+                action.actors.push_back(humanName);
+                if(i == 9){
+                    action.parameters.push_back("GREEN_TAPE1");
+                }else if(i == 10){
+                    action.parameters.push_back("GREEN_TAPE2");
+                }else if(i == 11){
+                    action.parameters.push_back("GREEN_TAPE3");
+                }
+                result.second = action;
+                return result;
+            }
+        }
+    }
+
+    /*
     //we look the object in the human hand
-    std::string sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate = 'isHoldBy' and target_id = '"+ humanName +"'";
+    std::string sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate='isHoldBy' and target_id = '"+ humanName +"'";
     std::vector<std::string> objetsInHand = pm_->executeSQL(sqlCommand);
     for(std::vector<std::string>::iterator it = objetsInHand.begin(); it != objetsInHand.end(); it++){
-        if(objectsColor[*it] == "green"){
+        if(objectsColor[*it] == "blue"){
             //the human drop the object in the box
             result.first = true;
             roboergosum_msgs::Action action;
             action.name = "drop";
             action.actors.push_back(humanName);
             action.parameters.push_back(*it);
-            action.parameters.push_back("GREEN_TRASHBIN");
+            action.parameters.push_back("BLUE_TRASHBIN");
             result.second = action;
             return result;
         }else{
-            //if the human has an object in hand which is not green, he waits
+            //if the human has an object in hand which is not blue, he waits
             return result;
         }
     }
 
     //then if the human has empty hands, we look in the object near him
-    sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate = 'isInArea' and target_id = '"+ humanArea +"'";
+    sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate='IsInArea' and target_id='"+ humanArea +"TABLE_4'";
     std::vector<std::string> objetsNearHuman = pm_->executeSQL(sqlCommand);
-    //we look first for green objects
+    ROS_ERROR("sql: %s, ", sqlCommand.c_str());
+    //we look first for blue objects
     for(std::vector<std::string>::iterator it = objetsNearHuman.begin(); it != objetsNearHuman.end(); it++){
-        if(objectsColor[*it] == "green"){
+        ROS_ERROR("object: %s, ", it->c_str());
+        if(objectsColor[*it] == "blue" && *it != "BLUE_TRASHBIN"){
             //the human pick the object
             result.first = true;
             roboergosum_msgs::Action action;
@@ -66,10 +298,10 @@ std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
             return result;
         }
     }
-    //then if the human is not lazy, we look for blue objects
+    //then if the human is not lazy, we look for green objects
     if(!humanNoHandover){
         for(std::vector<std::string>::iterator it = objetsNearHuman.begin(); it != objetsNearHuman.end(); it++){
-            if(objectsColor[*it] == "blue"){
+            if(objectsColor[*it] == "green" && *it != "GREEN_TRASHBIN"){
                 //the human pick the object
                 result.first = true;
                 roboergosum_msgs::Action action;
@@ -82,12 +314,12 @@ std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
         }
     }
 
-    //finally, if the human is proactive we look for green objects in the middle of the table
+    //finally, if the human is proactive we look for blue objects in the middle of the table
     if(!humanLazy){
-        sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate = 'isInArea' and target_id = '"+ middleArea +"'";
+        sqlCommand = "SELECT subject_id from fact_table_" + robotName + " where predicate='IsInArea' and target_id='"+ middleArea +"TABLE_4'";
         std::vector<std::string> objetsMiddle = pm_->executeSQL(sqlCommand);
         for(std::vector<std::string>::iterator it = objetsMiddle.begin(); it != objetsMiddle.end(); it++){
-            if(objectsColor[*it] == "green"){
+            if(objectsColor[*it] == "blue" && *it != "BLUE_TRASHBIN"){
                 //the human pick the object
                 result.first = true;
                 roboergosum_msgs::Action action;
@@ -98,7 +330,7 @@ std::pair<bool, roboergosum_msgs::Action> getHumanAction(){
                 return result;
             }
         }
-    }
+    }*/
 
 
     return result;
@@ -147,12 +379,18 @@ void updateHATPPlan(roboergosum_msgs::Action action){
         //action not in the plan, we abort the plan
         toBlockHATP = false;
         hasHATPPlan = false;
+        ROS_WARN("Action not in the plan: %d", action.id);
         executedActions.clear();
         return;
     }
 
     //if the action has already been executed it is an unexpected action
     if(pm_->isIntInVector(planAction.id, executedActions)){
+        ROS_WARN("Action already executed: %d", action.id);
+        ROS_WARN("Executed actions:");
+        for(int i = 0; i<executedActions.size(); i++){
+            ROS_WARN("   %d", executedActions[i]);
+        }
         toBlockHATP = false;
         hasHATPPlan = false;
         executedActions.clear();
@@ -166,11 +404,12 @@ void updateHATPPlan(roboergosum_msgs::Action action){
             toBlockHATP = false;
             hasHATPPlan = false;
             executedActions.clear();
+            ROS_WARN("Causal links not ok: %d", action.id);
             return;
         }
     }
 
-    //if we are here, the actionis considered ok so we add it to the executed actions
+    //if we are here, the action is considered ok so we add it to the executed actions
     executedActions.push_back(planAction.id);
 }
 
@@ -199,7 +438,7 @@ roboergosum_msgs::Action getNextHATP(){
 
     //if we are here, we did not find an action so we return wait
     roboergosum_msgs::Action action;
-    action.name == "wait";
+    action.name = "wait";
     return action;
 }
 
@@ -284,6 +523,7 @@ int main (int argc, char **argv)
   ros::Publisher hatp_pub = node.advertise<BP_experiment::Actions>("/bp_experiment/goaldirectedAction", 1);
 
   actionlib::SimpleActionClient<roboergosum_msgs::ActionManagerAction> actionClient("roboergosum/action_manager", true);
+  actionClient.waitForServer();
 
   ROS_INFO("[planners_manager] planners_manager ready");
 
@@ -291,6 +531,9 @@ int main (int argc, char **argv)
      //we reset the environment if needed
      if(pm_->needEnvReset_){
         pm_->setEnvironment();
+        hasHATPPlan = false;
+        executedActions.clear();
+        ros::Duration(2.0).sleep();
      }
 
      //we publish the world state and the previous reward
@@ -316,11 +559,13 @@ int main (int argc, char **argv)
      }
 
      //we call the expert
+     int idAction;
      roboergosum_msgs::Action action;
      if(expertToCall == "mf"){
          BP_experiment::Actions MFanswer;
          MFanswer = *(ros::topic::waitForMessage<BP_experiment::Actions>("bp_experiment/habitualAction",ros::Duration(1)));
          action = pm_->getActionFromId(MFanswer.actionID);
+         idAction = MFanswer.actionID;
      }else if(expertToCall == "hatp"){
         if(!hasHATPPlan){
             executedActions.clear();
@@ -328,6 +573,7 @@ int main (int argc, char **argv)
             std::pair<bool, roboergosum_msgs::Plan> hatpRequest = pm_->GetHATPPlan(toBlockHATP, actionToBlockHATP);
             if(hatpRequest.first){
                 hatpPlan = hatpRequest.second;
+                hasHATPPlan = true;
             }else{
                 ROS_WARN("HATP did not find a plan for the current situatuion");
             }
@@ -335,7 +581,7 @@ int main (int argc, char **argv)
         //then we get the corresponding action
         action = getNextHATP();
         //we publish the corresponding id
-        int idAction = pm_->getIdFromAction(action);
+        idAction = pm_->getIdFromAction(action);
         int nbActions;
         node_->getParam("actions/nbActions", nbActions);
         BP_experiment::Actions HATPAction;
@@ -410,7 +656,7 @@ int main (int argc, char **argv)
      ros::Time now = ros::Time::now();
      ros::Duration t = now - pm_->nodeStartTime_;
      float time = t.toSec();
-     pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << expertToCall << " " << state << std::endl;
+     pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << expertToCall << " " << idAction << " " << state << std::endl;
 
      //we execute human action if needed and update HATP plan if one
      if(humanActionNeeded){
@@ -420,10 +666,10 @@ int main (int argc, char **argv)
             roboergosum_msgs::HumanAction srv;
             srv.request.actionName = humanAction.second.name;
             srv.request.agent = humanName;
-            if(action.parameters.size()>0){
+            if(humanAction.second.parameters.size()>0){
                 srv.request.object = humanAction.second.parameters[0];
             }
-            if(action.parameters.size()>1){
+            if(humanAction.second.parameters.size()>1){
                 if(humanAction.second.name == "drop"){
                     srv.request.container = humanAction.second.parameters[1];
                 }else if(humanAction.second.name == "place"){
@@ -440,7 +686,7 @@ int main (int argc, char **argv)
                 }
                 //update HATP plan
                 if(hasHATPPlan){
-                   updateHATPPlan(action);
+                   updateHATPPlan(humanAction.second);
                    if(hasHATPPlan){
                        humanState = "EXPECTED";
                    }else{
@@ -457,7 +703,7 @@ int main (int argc, char **argv)
             now = ros::Time::now();
             t = now - pm_->nodeStartTime_;
             time = t.toSec();
-            pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << humanState << std::endl;
+            pm_->fileLogHumanActions_ << time  << " " << pm_->nbActions_ << " " << humanState << std::endl;
         }else{
             //if hatp was waiting for an action and the human does not perform it we need a new plan
             if(action.name == "wait" && expertToCall == "hatp"){

@@ -9,16 +9,16 @@ action_manager:
     handoverConfigurationRight: 'RightTestNo'
     handoverConfigurationLeft: 'LeftTestNo'
     putInFrontObject: 'TABLE_4'
-    putInFrontHeigth: 1.5
+    putInFrontHeigth: 1.0
     locationsPose:
-        initialLocation:
+        ROBOT_LOC:
             x: 4.0
             y: 4.2
             x_rot: 0.0
             y_rot: 0.0
             z_rot: 0.0
             w_rot: 1.0
-        secondLocation:
+        SECOND_LOC:
             x: 4.6
             y: 5.1
             x_rot: 0.0

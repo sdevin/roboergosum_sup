@@ -211,11 +211,11 @@ rosservice call /area_manager/add_area "myArea:
     ray: 2.0
     poly:
       points:
-      - {x: -0.1, y: 0.6, z: 0}
+      - {x: -0.1, y: 1.2, z: 0}
       - {x: -0.1, y: -0.4, z: 0}
       - {x: 1.2, y: -0.4, z: 0}
-      - {x: 1.2, y: 0.6, z: 0}
-      - {x: -0.1, y: 0.6, z: 0}
+      - {x: 1.2, y: 1.2, z: 0}
+      - {x: -0.1, y: 1.2, z: 0}
     insideEntities: [0]"
 
 rosservice call /area_manager/add_area "myArea:
@@ -236,5 +236,44 @@ rosservice call /area_manager/add_area "myArea:
       - {x: 0.6, y: 1.2, z: 0}
       - {x: -0.2, y: 1.2, z: 0}
     insideEntities: [0]"
+
+rosservice call /area_manager/add_area "myArea:
+  id: 0
+  name: 'robotReachable'
+  myOwner: 'TABLE_4'
+  areaType: ''
+  factType: ''
+  entityType: 'entities'
+  isCircle: false
+  center: {x: 0.0, y: 0.0, z: 0.0}
+  ray: 2.0
+  poly:
+    points:
+    - {x: -0.7, y: 0.4, z: 0}
+    - {x: -0.7, y: -1.0, z: 0}
+    - {x: 0.2, y: -1.0, z: 0}
+    - {x: 0.2, y: 0.4, z: 0}
+    - {x: -0.7, y: 0.4, z: 0}
+  insideEntities: [0]"
+
+
+rosservice call /database_manager/set_info "{add: true, infoType: 'FACT', agentId: 'PR2_ROBOT', facts: [
+    {property: 'type', propertyType: 'state', subProperty: '', subjectId: 'PR2_ROBOT', targetId: 'robot', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'type', propertyType: 'state', subProperty: '', subjectId: 'HERAKLES_HUMAN1', targetId: 'human', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'GREEN_TRASHBIN', targetId: 'green', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'BLUE_TRASHBIN', targetId: 'blue', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'GREEN_TAPE1', targetId: 'green', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'GREEN_TAPE2', targetId: 'green', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'GREEN_TAPE3', targetId: 'green', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'BLUE_TAPE1', targetId: 'blue', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'BLUE_TAPE2', targetId: 'blue', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'color', propertyType: 'state', subProperty: '', subjectId: 'BLUE_TAPE3', targetId: 'blue', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'canGo', propertyType: 'state', subProperty: '', subjectId: 'ROBOT_LOC', targetId: 'true', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'canGo', propertyType: 'state', subProperty: '', subjectId: 'SECOND_LOC', targetId: 'true', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'canGo', propertyType: 'state', subProperty: '', subjectId: 'HUMAN_LOC', targetId: 'false', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'isAt', propertyType: 'state', subProperty: '', subjectId: 'PR2_ROBOT', targetId: 'ROBOT_LOC', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+    , {property: 'isAt', propertyType: 'state', subProperty: '', subjectId: 'HERAKLES_HUMAN1', targetId: 'HUMAN_LOC', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0, timeStart: 0, timeEnd: 0}
+], event: {property: '', propertyType: '', subProperty: '', subjectId: '', targetId: '', subjectOwnerId: '', targetOwnerId: '', valueType: false, factObservability: 0.0, doubleValue: 0.0, stringValue: '', confidence: 0.0, time: 0}, id: '', name: '', ownerId: ''}"
+
 
 rostopic pub /initialpose geometry_msgs/PoseWithCovarianceStamped '{ header: { frame_id: "/map" }, pose: { pose: { position: { x: 4.0, y: 4.2 }, orientation: { x: 0, y: 0, z: 0.0, w: 1.0 } }, covariance: [ 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] } }'

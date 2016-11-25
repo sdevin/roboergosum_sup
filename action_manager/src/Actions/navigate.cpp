@@ -105,10 +105,25 @@ bool Navigate::exec(){
  * \brief Post-conditions for the navigate action and add effects
  *
  * The effects are:
+ * - set the robot at the new location
  *
  * \return true if the post-conditions are checked, else return false
  * */
 bool Navigate::post(){
+
+
+    //add effects to the database
+    std::vector<toaster_msgs::Fact> effects;
+    toaster_msgs::Fact fact;
+    fact.subjectId = robotName_;
+    fact.property = "isAt";
+    fact.targetId = "NULL";
+    effects.push_back(fact);
+    fact.subjectId = robotName_;
+    fact.property = "isAt";
+    fact.targetId = location_;
+    effects.push_back(fact);
+    addFactsToDB(effects);
 
     return true;
 }

@@ -26,6 +26,34 @@ bool humaAction(roboergosum_msgs::HumanAction::Request  &req, roboergosum_msgs::
 }
 
 /**
+ * @brief Service call to remove attachments
+ */
+bool addAttachment(roboergosum_msgs::String::Request  &req, roboergosum_msgs::String::Response &res){
+
+    std::pair<std::string, std::string> attach;
+    attach.first = "HERAKLES_HUMAN1";
+    attach.second = req.data;
+    hm_->attachments_.push_back(attach);
+
+    return true;
+}
+
+/**
+ * @brief Service call to remove attachments
+ */
+bool removeAttachment(roboergosum_msgs::String::Request  &req, roboergosum_msgs::String::Response &res){
+
+    for(std::vector<std::pair<std::string, std::string> >::iterator it = hm_->attachments_.begin(); it != hm_->attachments_.end(); it++){
+       if(it->second == req.data){
+           hm_->attachments_.erase(it);
+           break;
+       }
+    }
+
+    return true;
+}
+
+/**
  * \brief Main function
  * */
 int main (int argc, char **argv)
@@ -40,6 +68,8 @@ int main (int argc, char **argv)
 
   //Services declarations
   ros::ServiceServer service_action = node.advertiseService("human_manager/human_action", humaAction); //allows to execute a human action
+  ros::ServiceServer remove_attach = node.advertiseService("human_manager/remove_attachment", removeAttachment); //allows to remove an attachment
+  ros::ServiceServer add_attach = node.advertiseService("human_manager/add_attachment", addAttachment); //allows to add an attachment
 
   ROS_INFO("[human_manager] human_manager ready");
 

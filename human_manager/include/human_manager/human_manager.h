@@ -20,6 +20,7 @@
 #include "toaster_msgs/SetEntityPose.h"
 #include "toaster_msgs/ObjectListStamped.h"
 #include "toaster_msgs/SetInfoDB.h"
+#include "roboergosum_msgs/String.h"
 
 /**
  * @brief main class of the node
@@ -33,10 +34,10 @@ public:
     void humanDrop(std::string agent, std::string object, std::string container);
     std::pair<bool, std::string> hasInHand(std::string agent);
     void addFactsToDB(std::vector<toaster_msgs::Fact> facts);
+    std::vector<std::pair<std::string, std::string> > attachments_; /**< list of the different attachments (agent, object)*/
 protected:
 
 private:
-    std::vector<std::pair<std::string, std::string> > attachments_; /**< list of the different attachments (agent, object)*/
     ros::NodeHandle* node_; /**< pointer to the node handle*/
     std::string humanHand_; /**< name of the right hand of the human*/
     std::string robotName_; /**< name of the robot*/

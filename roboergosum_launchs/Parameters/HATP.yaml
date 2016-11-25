@@ -1,0 +1,8 @@
+---
+HATP_actions:
+    Pick: "pick"
+    Drop: "drop"
+    Give: "give"
+    Grab: "grab"
+    Navigate: "navigate"
+    Place: "place"

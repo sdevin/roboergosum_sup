@@ -65,6 +65,7 @@ bool Drop::preconditions(){
  * */
 bool Drop::plan(){
 
+    /*
     //if the previous gtp id is -1, we need to look for the id of the grasp
     if(connector_->previousGTPId_ == -1){
         if(connector_->idGrasp_ != -1){
@@ -108,7 +109,30 @@ bool Drop::plan(){
         return false;
     }
 
-    return true;
+    return true;*/
+    ros::Duration(1.0).sleep();
+    if(container_ == "GREEN_TRASHBIN"){
+        std::vector<toaster_msgs::Fact> precsTocheck;
+        toaster_msgs::Fact fact;
+        fact.subjectId = robotName_;
+        fact.property = "isAt";
+        fact.targetId = "ROBOT_LOC";
+        precsTocheck.push_back(fact);
+
+        return AreFactsInDB(precsTocheck);
+    }else if(container_ == "BLUE_TRASHBIN"){
+        std::vector<toaster_msgs::Fact> precsTocheck;
+        toaster_msgs::Fact fact;
+        fact.subjectId = robotName_;
+        fact.property = "isAt";
+        fact.targetId = "SECOND_LOC";
+        precsTocheck.push_back(fact);
+
+        return AreFactsInDB(precsTocheck);
+    }
+
+    return false;
+
 }
 
 /**
@@ -120,7 +144,32 @@ bool Drop::plan(){
  * */
 bool Drop::exec(){
 
-    return execGTPAction(GTPActionId_, true, object_);
+    //move the arm
+    pr2motion::Arm_Right_MoveToQGoalGoal goalQ;
+    goalQ.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+    goalQ.shoulder_pan_joint = -1.952888;
+    goalQ.shoulder_lift_joint = -0.095935;
+    goalQ.upper_arm_roll_joint = -0.601572;
+    goalQ.elbow_flex_joint = -1.600124;
+    goalQ.forearm_roll_joint = 0.018247;
+    goalQ.wrist_flex_joint = -0.432897;
+    goalQ.wrist_roll_joint = -1.730082;\
+    connector_->PR2motion_arm_right_Q_->sendGoal(goalQ);
+    connector_->rightArmMoving_ = true;
+    ROS_INFO("[action_manager] Waiting for arms move");
+    bool finishedBeforeTimeout = connector_->PR2motion_arm_right_Q_->waitForResult(ros::Duration(connector_->waitActionServer_));
+    connector_->rightArmMoving_ = false;
+    if (!finishedBeforeTimeout){
+       ROS_INFO("Action PR2 go to Q did not finish before the time out.");
+    }
+
+    //drop the tape
+    moveGripper(0, true); //open
+    RemoveFromHand(object_);
+
+    return true;
+
+    //return execGTPAction(GTPActionId_, true, object_);
 }
 
 /**

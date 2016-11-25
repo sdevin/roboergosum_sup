@@ -81,7 +81,7 @@ void HumanManager::humanPlace(std::string agent, std::string object, std::string
     ROS_INFO("[human_manager] %s has placed %s on %s", agent.c_str(), object.c_str(), support.c_str());
 
     ros::ServiceClient remove_from_hand = node_->serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
-    ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
 
 	//remove the object from the hand of the agent
 	toaster_msgs::RemoveFromHand srv_rmFromHand;
@@ -173,7 +173,7 @@ void HumanManager::humanDrop(std::string agent, std::string object, std::string 
     ROS_INFO("[human_manager] %s has droped %s in %s", agent.c_str(), object.c_str(), container.c_str());
 
     ros::ServiceClient remove_from_hand = node_->serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
-    ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("pdg/set_entity_pose");
+    ros::ServiceClient set_entity_pose = node_->serviceClient<toaster_msgs::SetEntityPose>("toaster_simu/set_entity_pose");
 	//remove the object from the hand of the agent
 	toaster_msgs::RemoveFromHand srv_rmFromHand;
     srv_rmFromHand.request.objectId = object;
@@ -259,14 +259,36 @@ std::pair<bool, std::string> HumanManager::hasInHand(std::string agent){
 void HumanManager::addFactsToDB(std::vector<toaster_msgs::Fact> facts){
 
     ros::ServiceClient client = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+    std::vector<toaster_msgs::Fact> toAdd, toRm;
 
-    toaster_msgs::SetInfoDB srv;
-    srv.request.agentId = robotName_;
-    srv.request.facts = facts;
-    srv.request.infoType = "FACT";
-    srv.request.add = true;
-    if (!client.call(srv)){
-     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+    for(std::vector<toaster_msgs::Fact>::iterator it = facts.begin(); it != facts.end(); it++){
+        if(it->subjectId == "NULL" || it->targetId == "NULL"){
+            toRm.push_back(*it);
+        }else{
+            toAdd.push_back(*it);
+        }
+    }
+
+    if(toRm.size() >0){
+        toaster_msgs::SetInfoDB srv;
+        srv.request.agentId = robotName_;
+        srv.request.facts = facts;
+        srv.request.infoType = "FACT";
+        srv.request.add = false;
+        if (!client.call(srv)){
+         ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+        }
+    }
+
+    if(toAdd.size() >0){
+        toaster_msgs::SetInfoDB srv;
+        srv.request.agentId = robotName_;
+        srv.request.facts = facts;
+        srv.request.infoType = "FACT";
+        srv.request.add = true;
+        if (!client.call(srv)){
+         ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 ---
 worldState:
-    nbFacts: 40
+    nbFacts: 42
     facts:
         nb0:
             subject: 'GREEN_TAPE1'
@@ -162,4 +162,12 @@ worldState:
             subject: 'BLUE_TAPE3'
             property: 'isHoldBy'
             target: 'HERAKLES_HUMAN'
+        nb40:
+            subject: 'PR2_ROBOT'
+            property: 'isAt'
+            target: 'ROBOT_LOC'
+        nb41:
+            subject: 'PR2_ROBOT'
+            property: 'isAt'
+            target: 'SECOND_LOC'
 

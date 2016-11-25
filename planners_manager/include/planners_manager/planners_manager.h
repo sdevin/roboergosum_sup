@@ -24,6 +24,7 @@
 #include "toaster_msgs/ObjectListStamped.h"
 #include "toaster_msgs/ExecuteDB.h"
 #include "toaster_msgs/SetInfoDB.h"
+#include "toaster_msgs/RemoveFromHand.h"
 #include "roboergosum_msgs/Action.h"
 #include "roboergosum_msgs/Plan.h"
 #include "roboergosum_msgs/ActionManagerAction.h"
@@ -49,10 +50,13 @@ public:
     bool isIntInVector(int i, std::vector<int> vector);
     std::vector<std::string> executeSQL(std::string sql);
     bool AreFactsInDB(std::vector<toaster_msgs::Fact> facts);
+    std::vector<std::string> AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts);
     std::pair<bool, roboergosum_msgs::Plan> GetHATPPlan(bool toBlock, roboergosum_msgs::Action actionToBlock);
     void removeHATPFlags();
     roboergosum_msgs::Action getActionFromId(int id);
     int getIdFromAction(roboergosum_msgs::Action action);
+    void resetDB();
+    void removeFromHand();
 
     bool needEnvReset_; /**< true if the environment need to be put reset to the initial set-up*/
     std::ofstream fileLogHATP_; /**< the file where to log hatp info*/
@@ -68,12 +72,10 @@ protected:
 private:
     ros::NodeHandle* node_; /**< pointer to the node handle*/
     std::string robotName_; /**< name of the robot*/
+    ros::Publisher robotPose_pub_; /**< publisher for intializing the robot pose*/
 
-    void resetDB();
     roboergosum_msgs::Plan convertPlan(hatp_msgs::Plan plan);
     void addHATPFlags(roboergosum_msgs::Action actionToBlock);
-    std::vector<std::string> AreFactsInDBIndiv(std::vector<toaster_msgs::Fact> facts);
-    ros::Publisher robotPose_pub_;
 };
 
 #endif // PLANNERSMANAGER_H

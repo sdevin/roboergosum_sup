@@ -438,7 +438,7 @@ void VirtualAction::PutInHand(std::string object, std::string hand, int gtpId){
     handTopic = handTopic + hand;
     connector_->node_.getParam(handTopic, robotHand);
     std::string robotToasterName;
-    connector_->node_.getParam("roergosum/toasterRobotName", robotToasterName);
+    connector_->node_.getParam("roboergosum/toasterRobotName", robotToasterName);
     toaster_msgs::PutInHand srv;
     srv.request.objectId = object;
     srv.request.agentId = robotToasterName;
@@ -671,8 +671,8 @@ void VirtualAction::PutObjectInFrontRobot(std::string object){
     toaster_msgs::SetEntityPose srv;
     srv.request.id = object;
     srv.request.type = "object";
-    srv.request.pose.position.x = x;
-    srv.request.pose.position.y = y;
+    srv.request.pose.position.x = x - 0.1;
+    srv.request.pose.position.y = y - 0.1;
     srv.request.pose.position.z = z;
     srv.request.pose.orientation.x = 0.0;
     srv.request.pose.orientation.y = 0.0;
@@ -696,14 +696,36 @@ void VirtualAction::PutObjectInFrontRobot(std::string object){
 void VirtualAction::addFactsToDB(std::vector<toaster_msgs::Fact> facts){
 
     ros::ServiceClient client = connector_->node_.serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+    std::vector<toaster_msgs::Fact> toAdd, toRm;
 
-    toaster_msgs::SetInfoDB srv;
-    srv.request.agentId = robotName_;
-    srv.request.facts = facts;
-    srv.request.infoType = "FACT";
-    srv.request.add = true;
-    if (!client.call(srv)){
-     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+    for(std::vector<toaster_msgs::Fact>::iterator it = facts.begin(); it != facts.end(); it++){
+        if(it->subjectId == "NULL" || it->targetId == "NULL"){
+            toRm.push_back(*it);
+        }else{
+            toAdd.push_back(*it);
+        }
+    }
+
+    if(toRm.size() >0){
+        toaster_msgs::SetInfoDB srv;
+        srv.request.agentId = robotName_;
+        srv.request.facts = facts;
+        srv.request.infoType = "FACT";
+        srv.request.add = false;
+        if (!client.call(srv)){
+         ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+        }
+    }
+
+    if(toAdd.size() >0){
+        toaster_msgs::SetInfoDB srv;
+        srv.request.agentId = robotName_;
+        srv.request.facts = facts;
+        srv.request.infoType = "FACT";
+        srv.request.add = true;
+        if (!client.call(srv)){
+         ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+        }
     }
 }
 

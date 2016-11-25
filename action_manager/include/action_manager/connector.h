@@ -17,6 +17,8 @@
 #include <gtp_ros_msg/requestAction.h>
 #include <pr2motion/Arm_Right_MoveAction.h>
 #include <pr2motion/Arm_Left_MoveAction.h>
+#include <pr2motion/Arm_Right_MoveToQGoalAction.h>
+#include <pr2motion/Arm_Left_MoveToQGoalAction.h>
 #include <pr2motion/Gripper_Right_OperateAction.h>
 #include <pr2motion/Gripper_Left_OperateAction.h>
 #include <pr2motion/InitAction.h>
@@ -72,6 +74,8 @@ public:
     actionlib::SimpleActionClient<pr2motion::Torso_MoveAction>* PR2motion_torso_;/**< pr2motion torso action server*/
     actionlib::SimpleActionClient<pr2motion::Arm_Right_MoveAction>* PR2motion_arm_right_;/**< pr2motion right arm action server*/
     actionlib::SimpleActionClient<pr2motion::Arm_Left_MoveAction>* PR2motion_arm_left_;/**< pr2motion left arm action server*/
+    actionlib::SimpleActionClient<pr2motion::Arm_Right_MoveToQGoalAction>* PR2motion_arm_right_Q_;/**< pr2motion right arm action server for move to Q*/
+    actionlib::SimpleActionClient<pr2motion::Arm_Left_MoveToQGoalAction>* PR2motion_arm_left_Q_;/**< pr2motion left arm action server for move to Q*/
     actionlib::SimpleActionClient<pr2motion::Gripper_Right_OperateAction>* PR2motion_gripper_right_;/**< pr2motion right gripper action server*/
     actionlib::SimpleActionClient<pr2motion::Gripper_Left_OperateAction>* PR2motion_gripper_left_;/**< pr2motion left gripper action server*/
 

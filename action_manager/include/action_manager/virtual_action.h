@@ -17,6 +17,7 @@
 #include "toaster_msgs/PutInHand.h"
 #include "toaster_msgs/RemoveFromHand.h"
 #include "toaster_msgs/SetEntityPose.h"
+#include "roboergosum_msgs/String.h"
 
 #include <iostream>
 #include <string>

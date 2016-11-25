@@ -25,11 +25,12 @@ PlannersManager::PlannersManager(ros::NodeHandle* node){
     //open logs files
     std::string idExp;
     node_->getParam("/roboergosum/idExp", idExp);
-    std::string fileHATPPath = "logs/Sup/exp_" + idExp + "HATP.dat";
+    std::string repoPath = "/home/sdevin/catkin_ws/src/roboergosum_sup/roboergosum_launchs/logs/Sup/";
+    std::string fileHATPPath = repoPath + "exp_" + idExp + "_HATP.dat";
     fileLogHATP_.open(fileHATPPath.c_str(), std::ios::out|std::ios::trunc);
-    std::string fileRobotPath = "logs/Sup/exp_" + idExp + "RobotActions.dat";
+    std::string fileRobotPath = repoPath + "exp_" + idExp + "_RobotActions.dat";
     fileLogRobotActions_.open(fileRobotPath.c_str(), std::ios::out|std::ios::trunc);
-    std::string fileHumanPath = "logs/Sup/exp_" + idExp + "HumanActions.dat";
+    std::string fileHumanPath = repoPath + "exp_" + idExp + "_HumanActions.dat";
     fileLogHumanActions_.open(fileHumanPath.c_str(), std::ios::out|std::ios::trunc);
 }
 
@@ -47,6 +48,10 @@ PlannersManager::~PlannersManager(){
  * \brief Set the environment in toaster at the initial point (based on params)
  * */
 void PlannersManager::setEnvironment(){
+
+    removeFromHand();
+
+    needEnvReset_ = false;
 
     //we put the obot at initial pose
     /*geometry_msgs::PoseWithCovarianceStamped msg_pose;
@@ -78,10 +83,11 @@ void PlannersManager::setEnvironment(){
     std::vector<std::string> listObjects;
     node_->getParam("/environment/objectsToRandomlyPlace", listObjects);
     std::map<int,int> assignementMap;
-    for(int i = 1; i < listSupports.size() + 1; i++){
+    for(int i = 0; i < listSupports.size() + 1; i++){
         assignementMap[i] = i;
     }
     int nbSupports = listSupports.size();
+    std::vector<toaster_msgs::Fact> facts;
     for(std::vector<std::string>::iterator it = listObjects.begin(); it != listObjects.end(); it++){
         //we choose a support
         int nb = rand()%nbSupports;
@@ -117,15 +123,35 @@ void PlannersManager::setEnvironment(){
         //we remove the support from possible supports
         nbSupports --;
         int nbStart;
-        for(int i = 1; i < nbSupports + 1; i++){
+        for(int i = 0; i < nbSupports + 1; i++){
             if(assignementMap[i] == nbChosen){
                 nbStart = i;
                 break;
             }
         }
+
         for(int i = nbStart; i < nbSupports + 1; i++){
             assignementMap[i] = assignementMap[i+1];
         }
+        //we add isOnfact
+        //Put back initial facts
+        toaster_msgs::Fact fact;
+        fact.subjectId = *it;
+        fact.property = "isOn";
+        fact.targetId = listSupports[nbChosen];
+        facts.push_back(fact);
+    }
+
+
+    ros::ServiceClient client_set = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+
+    toaster_msgs::SetInfoDB srv_set;
+    srv_set.request.agentId = robotName_;
+    srv_set.request.facts = facts;
+    srv_set.request.infoType = "FACT";
+    srv_set.request.add = true;
+    if (!client_set.call(srv_set)){
+     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
     }
 }
 
@@ -144,7 +170,7 @@ bool PlannersManager::AreFactsInDB(std::vector<toaster_msgs::Fact> facts){
     if (client.call(srv)){
         return srv.response.boolAnswer;
     }else{
-       ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
+       ROS_ERROR("[planners_manager] Failed to call service database_manager/execute");
     }
     return false;
 }
@@ -166,9 +192,42 @@ std::vector<std::string> PlannersManager::AreFactsInDBIndiv(std::vector<toaster_
     if (client.call(srv)){
         res = srv.response.results;
     }else{
-       ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
+       ROS_ERROR("[planners_manager] Failed to call service database_manager/execute");
     }
     return res;
+}
+
+/**
+* \brief Remove everything from hand
+*/
+void PlannersManager::removeFromHand(){
+
+    ros::ServiceClient client = node_->serviceClient<toaster_msgs::RemoveFromHand>("pdg/remove_from_hand");
+    toaster_msgs::RemoveFromHand srv;
+    srv.request.objectId = "GREEN_TAPE1";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
+    srv.request.objectId = "GREEN_TAPE12";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
+    srv.request.objectId = "GREEN_TAPE3";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
+    srv.request.objectId = "BLUE_TAPE1";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
+    srv.request.objectId = "BLUE_TAPE2";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
+    srv.request.objectId = "BLUE_TAPE3";
+    if (!client.call(srv)){
+        ROS_ERROR("[planners_manager] Failed to call service pdg/remove_from_hand");
+    }
 }
 
 /**
@@ -181,8 +240,92 @@ void PlannersManager::resetDB(){
     srv.request.command = "EMPTY";
     srv.request.type = "ALL";
     if (!client.call(srv)){
-        ROS_ERROR("[action_manager] Failed to call service database_manager/execute");
+        ROS_ERROR("[planners_manager] Failed to call service database_manager/execute");
     }
+
+    //Put back initial facts
+    std::vector<toaster_msgs::Fact> facts;
+    toaster_msgs::Fact fact;
+    fact.subjectId = robotName_;
+    fact.property = "type";
+    fact.targetId = "robot";
+    facts.push_back(fact);
+    fact.subjectId = "HERAKLES_HUMAN1";
+    fact.property = "type";
+    fact.targetId = "robot";
+    facts.push_back(fact);
+    fact.subjectId = "GREEN_TRASHBIN";
+    fact.property = "color";
+    fact.targetId = "green";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TRASHBIN";
+    fact.property = "color";
+    fact.targetId = "blue";
+    facts.push_back(fact);
+    fact.subjectId = "GREEN_TAPE1";
+    fact.property = "color";
+    fact.targetId = "green";
+    facts.push_back(fact);
+    fact.subjectId = "GREEN_TAPE2";
+    fact.property = "color";
+    fact.targetId = "green";
+    facts.push_back(fact);
+    fact.subjectId = "GREEN_TAPE3";
+    fact.property = "color";
+    fact.targetId = "green";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TAPE1";
+    fact.property = "color";
+    fact.targetId = "blue";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TAPE2";
+    fact.property = "color";
+    fact.targetId = "blue";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TAPE3";
+    fact.property = "color";
+    fact.targetId = "blue";
+    facts.push_back(fact);
+    fact.subjectId = "ROBOT_LOC";
+    fact.property = "canGo";
+    fact.targetId = "true";
+    facts.push_back(fact);
+    fact.subjectId = "SECOND_LOC";
+    fact.property = "canGo";
+    fact.targetId = "true";
+    facts.push_back(fact);
+    fact.subjectId = "HUMAN_LOC";
+    fact.property = "canGo";
+    fact.targetId = "false";
+    facts.push_back(fact);
+    fact.subjectId = "PR2_ROBOT";
+    fact.property = "isAt";
+    fact.targetId = "ROBOT_LOC";
+    facts.push_back(fact);
+    fact.subjectId = "HERAKLES_HUMAN1";
+    fact.property = "isAt";
+    fact.targetId = "HUMAN_LOC";
+    facts.push_back(fact);
+    fact.subjectId = "HERAKLES_HUMAN1";
+    fact.property = "isReachableBy";
+    fact.targetId = "PR2_ROBOT";
+    facts.push_back(fact);
+    fact.subjectId = "PR2_ROBOT";
+    fact.property = "isReachableBy";
+    fact.targetId = "HERAKLES_HUMAN1";
+    facts.push_back(fact);
+
+    ros::ServiceClient client_set = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");
+
+    toaster_msgs::SetInfoDB srv_set;
+    srv_set.request.agentId = robotName_;
+    srv_set.request.facts = facts;
+    srv_set.request.infoType = "FACT";
+    srv_set.request.add = true;
+    if (!client_set.call(srv_set)){
+     ROS_ERROR("[action_manager] Failed to call service database_manager/set_info");
+    }
+
 }
 
 
@@ -202,6 +345,10 @@ std::string PlannersManager::computeWS(std::vector<toaster_msgs::Fact> WSFacts){
         }else{
             ws = ws + "0";
         }
+    }
+
+    for(int i = 0; i<results.size(); i++){
+        //ROS_ERROR("WS[%d]: %s", i, results[i].c_str());
     }
 
     return ws;
@@ -285,7 +432,7 @@ std::pair<bool, roboergosum_msgs::Plan> PlannersManager::GetHATPPlan(bool toBloc
 
     std::pair<bool, roboergosum_msgs::Plan> answer;
 
-    ros::ServiceClient client = node_->serviceClient<hatp_msgs::PlanningRequest>("Planner");
+    ros::ServiceClient client = node_->serviceClient<hatp_msgs::PlanningRequest>("hatp/planner");
     hatp_msgs::PlanningRequest service;
 
     //we add HATP flags
@@ -308,14 +455,16 @@ std::pair<bool, roboergosum_msgs::Plan> PlannersManager::GetHATPPlan(bool toBloc
        ros::Duration t = now - nodeStartTime_;
        float duration = d.toSec();
        float time = t.toSec();
-       fileLogHATP_ << time << " " << nbActions_ << " " << duration << std::endl;
+       std::string success;
        if(service.response.solution.report == "OK"){
           answer.first = true;
           answer.second = convertPlan(service.response.solution);
-
+          success = "OK";
        }else{
           answer.first = false;
+          success = "NO_PLAN";
       }
+       fileLogHATP_ << time << " " << nbActions_ << " " << duration << " " << success <<std::endl;
     }else{
         ROS_ERROR("[planners_manager] Failed to call service 'Planner'");
         answer.first = false;
@@ -337,9 +486,19 @@ roboergosum_msgs::Plan PlannersManager::convertPlan(hatp_msgs::Plan plan){
           roboergosum_msgs::Action action;
           std::string nameTopic = "HATP_actions/";
           nameTopic = nameTopic + it->name;
-          node_->getParam(nameTopic, action.name);
+          std::string name;
+          node_->getParam(nameTopic, name );
+          action.name = name;
           action.id = it->id;
-          action.actors = it->agents;
+          if(action.name == "give" && it->agents[0] == "HERAKLES_HUMAN1"){
+                action.name = "grab";
+                action.actors.push_back(robotName_);
+          }else if(action.name == "grab" && it->agents[0] == "HERAKLES_HUMAN1"){
+              action.name = "give";
+              action.actors.push_back(robotName_);
+          }else{
+              action.actors = it->agents;
+          }
           //we remove the agents from the parameters
           int i;
           if(action.name == "give" || action.name == "grab"){
@@ -349,6 +508,9 @@ roboergosum_msgs::Plan PlannersManager::convertPlan(hatp_msgs::Plan plan){
           }
           for(i; i < it->parameters.size(); i++){
               action.parameters.push_back(it->parameters[i]);
+          }
+          if(action.name == "give" || action.name == "grab"){
+              action.parameters.push_back("HERAKLES_HUMAN1");
           }
           newPlan.actions.push_back(action);
        }
@@ -387,7 +549,7 @@ void PlannersManager::addHATPFlags(roboergosum_msgs::Action actionToBlock){
         toAddFacts.push_back(fact);
         srv.request.facts = toAddFacts;
         if (!client.call(srv)){
-         ROS_ERROR("[mental_state] Failed to call service database_manager/set_info");
+         ROS_ERROR("[planners_manager] Failed to call service database_manager/set_info");
         }
     }
 
@@ -548,19 +710,19 @@ int PlannersManager::getIdFromAction(roboergosum_msgs::Action action){
 
         //get the action name
         std::string name;
-        std::string nameTopic = "actions/" + idString + "/name";
+        std::string nameTopic = "actions/nb" + idString + "/name";
         node_->getParam(nameTopic, name);
         if(action.name == name){
             if(name == "pick"){
                 std::string object;
-                std::string objectTopic = "actions/" + idString + "/object";
+                std::string objectTopic = "actions/nb" + idString + "/object";
                 node_->getParam(objectTopic, object);
                 if(object == action.parameters[0]){
                     return i;
                 }
             }else if(name == "place"){
                 std::string support;
-                std::string supportTopic = "actions/" + idString + "/support";
+                std::string supportTopic = "actions/nb" + idString + "/support";
                 node_->getParam(supportTopic, support);
                 if(support == action.parameters[1]){
                     return i;

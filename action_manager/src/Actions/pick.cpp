@@ -63,6 +63,8 @@ bool Pick::preconditions(){
  * */
 bool Pick::plan(){
 
+    connector_->previousGTPId_ = -1;
+
     std::vector<gtp_ros_msg::Ag> agents;
     gtp_ros_msg::Ag agent;
     agent.actionKey = "mainAgent";
@@ -127,6 +129,10 @@ bool Pick::post(){
     fact.subjectId = object_;
     fact.property = "isHoldBy";
     fact.targetId = robotName_;
+    effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isOn";
+    fact.targetId = "NULL";
     effects.push_back(fact);
     addFactsToDB(effects);
 

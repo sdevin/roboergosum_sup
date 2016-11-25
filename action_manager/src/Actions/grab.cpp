@@ -70,6 +70,10 @@ bool Grab::plan(){
     //we place it in front of the robot
     PutObjectInFrontRobot(object_);
 
+    ros::Duration(1.0).sleep();
+
+    connector_->previousGTPId_ = -1;
+
     //we plan a pick to grab the object
     std::vector<gtp_ros_msg::Ag> agents;
     gtp_ros_msg::Ag agent;
@@ -144,6 +148,14 @@ bool Grab::post(){
         ROS_WARN("[action_manager] Robot failed to grab (gripper empty)");
         return false;
     }
+
+    //remove human attachment
+    ros::ServiceClient rm_attach = connector_->node_.serviceClient<roboergosum_msgs::String>("human_manager/remove_attachment");
+    roboergosum_msgs::String srv;
+    srv.request.data = object_;
+    if (!rm_attach.call(srv)){
+     ROS_ERROR("Failed to call service human_manager/remove_attachment");
+     }
 
     //add effects to the database
     std::vector<toaster_msgs::Fact> effects;

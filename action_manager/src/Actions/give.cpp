@@ -95,7 +95,7 @@ bool Give::plan(){
 
 
     //Now we can plan the action
-    std::vector<gtp_ros_msg::Ag> agents;
+    /*std::vector<gtp_ros_msg::Ag> agents;
     gtp_ros_msg::Ag agent;
     agent.actionKey = "mainAgent";
     agent.agentName = robotName_;
@@ -115,7 +115,8 @@ bool Give::plan(){
 
     if(GTPActionId_ == -1){
         return false;
-    }
+    }*/
+    ros::Duration(1.0).sleep();
 
     return true;
 }
@@ -129,7 +130,25 @@ bool Give::plan(){
  * */
 bool Give::exec(){
 
-    return executeTrajectory(GTPActionId_, 0, connector_->armGrasp_);
+    pr2motion::Arm_Right_MoveToQGoalGoal goalQ;
+    goalQ.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+    goalQ.shoulder_pan_joint = 0.0;
+    goalQ.shoulder_lift_joint = 0.0;
+    goalQ.upper_arm_roll_joint = 0.0;
+    goalQ.elbow_flex_joint = 0.0;
+    goalQ.forearm_roll_joint = 0.0;
+    goalQ.wrist_flex_joint = 0.0;
+    goalQ.wrist_roll_joint = 0.0;
+    connector_->PR2motion_arm_right_Q_->sendGoal(goalQ);
+    connector_->rightArmMoving_ = true;
+    ROS_INFO("[action_manager] Waiting for arms move");
+    bool finishedBeforeTimeout = connector_->PR2motion_arm_right_Q_->waitForResult(ros::Duration(connector_->waitActionServer_));
+    connector_->rightArmMoving_ = false;
+    if (!finishedBeforeTimeout){
+       ROS_INFO("Action PR2 go to Q did not finish before the time out.");
+    }
+
+    return true;
 
 }
 
@@ -152,6 +171,14 @@ bool Give::post(){
 
     RemoveFromHand(object_);
     PutInHumanHand(object_, receiver_);
+
+    //we add attachment in human manager
+    ros::ServiceClient add_attach = connector_->node_.serviceClient<roboergosum_msgs::String>("human_manager/add_attachment");
+    roboergosum_msgs::String srv;
+    srv.request.data = object_;
+    if (!add_attach.call(srv)){
+     ROS_ERROR("Failed to call service human_manager/add_attachment");
+     }
 
     //add effects to the database
     std::vector<toaster_msgs::Fact> effects;

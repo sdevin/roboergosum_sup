@@ -47,6 +47,10 @@ Connector::Connector(){
     PR2motion_arm_right_->waitForServer();
     PR2motion_arm_left_ = new actionlib::SimpleActionClient<pr2motion::Arm_Left_MoveAction>("pr2motion/Arm_Left_Move",true);
     PR2motion_arm_left_->waitForServer();
+    PR2motion_arm_right_Q_ = new actionlib::SimpleActionClient<pr2motion::Arm_Right_MoveToQGoalAction>("pr2motion/Arm_Right_MoveToQGoal",true);
+    PR2motion_arm_right_Q_->waitForServer();
+    PR2motion_arm_left_Q_ = new actionlib::SimpleActionClient<pr2motion::Arm_Left_MoveToQGoalAction>("pr2motion/Arm_Left_MoveToQGoal",true);
+    PR2motion_arm_left_Q_->waitForServer();
     PR2motion_gripper_right_ = new actionlib::SimpleActionClient<pr2motion::Gripper_Right_OperateAction>("pr2motion/Gripper_Right_Operate",true);
     PR2motion_gripper_right_->waitForServer();
     PR2motion_gripper_left_ = new actionlib::SimpleActionClient<pr2motion::Gripper_Left_OperateAction>("pr2motion/Gripper_Left_Operate",true);
@@ -75,7 +79,8 @@ Connector::Connector(){
         ROS_ERROR("[action_manager] Failed to call service pr2motion/connect_port");
     }
 
-    if(simu_){//change torso position
+    if(simu_){
+        //change torso position
        pr2motion::Torso_MoveGoal goal;
        goal.torso_position = 0.1;
        torsoMoving_ = true;
@@ -85,6 +90,42 @@ Connector::Connector(){
        torsoMoving_ = false;
        if (!finishedBeforeTimeout){
           ROS_INFO("Action PR2Torso did not finish before the time out.");
+       }
+
+       //move arms
+       pr2motion::Arm_Right_MoveToQGoalGoal goalQ;
+       goalQ.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+       goalQ.shoulder_pan_joint = -1.952888;
+       goalQ.shoulder_lift_joint = -0.095935;
+       goalQ.upper_arm_roll_joint = -0.601572;
+       goalQ.elbow_flex_joint = -1.600124;
+       goalQ.forearm_roll_joint = 0.018247;
+       goalQ.wrist_flex_joint = -0.432897;
+       goalQ.wrist_roll_joint = -1.730082;\
+       PR2motion_arm_right_Q_->sendGoal(goalQ);
+       rightArmMoving_ = true;
+       ROS_INFO("[action_manager] Waiting for arms move");
+       finishedBeforeTimeout = PR2motion_arm_right_Q_->waitForResult(ros::Duration(waitActionServer_));
+       rightArmMoving_ = false;
+       if (!finishedBeforeTimeout){
+          ROS_INFO("Action PR2 go to Q did not finish before the time out.");
+       }
+       pr2motion::Arm_Left_MoveToQGoalGoal goalQL;
+       goalQL.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+       goalQL.shoulder_pan_joint = 1.91155;
+       goalQL.shoulder_lift_joint = -0.0984492;
+       goalQL.upper_arm_roll_joint = 0.6;
+       goalQL.elbow_flex_joint = -1.6534;
+       goalQL.forearm_roll_joint = -0.02173;
+       goalQL.wrist_flex_joint = -0.473717;
+       goalQL.wrist_roll_joint = -1.76561;\
+       PR2motion_arm_left_Q_->sendGoal(goalQL);
+       leftArmMoving_ = true;
+       ROS_INFO("[action_manager] Waiting for arms move");
+       finishedBeforeTimeout = PR2motion_arm_left_Q_->waitForResult(ros::Duration(waitActionServer_));
+       leftArmMoving_ = false;
+       if (!finishedBeforeTimeout){
+          ROS_INFO("Action PR2 go to Q did not finish before the time out.");
        }
     }
 }
