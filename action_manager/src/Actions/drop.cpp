@@ -47,10 +47,10 @@ bool Drop::preconditions(){
     fact.property = "isHoldBy";
     fact.targetId = robotName_;
     precsTocheck.push_back(fact);
-    fact.subjectId = container_;
+    /*fact.subjectId = container_;
     fact.property = "isReachableBy";
     fact.targetId = robotName_;
-    precsTocheck.push_back(fact);
+    precsTocheck.push_back(fact);*/
 
     return AreFactsInDB(precsTocheck);
 }

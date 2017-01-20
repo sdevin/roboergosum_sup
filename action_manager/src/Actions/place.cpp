@@ -66,7 +66,7 @@ bool Place::preconditions(){
 bool Place::plan(){
 
     //if the previous gtp id is -1, we need to look for the id of the grasp
-    if(connector_->previousGTPId_ == -1){
+    /*if(connector_->previousGTPId_ == -1){
         if(connector_->idGrasp_ != -1){
             ROS_WARN("[action_manager] Place failed in planning: no previous id for the grasp");
         }else{
@@ -106,8 +106,9 @@ bool Place::plan(){
 
     if(GTPActionId_ == -1){
         return false;
-    }
+    }*/
 
+    ros::Duration(1.0).sleep();
     return true;
 }
 
@@ -120,7 +121,32 @@ bool Place::plan(){
  * */
 bool Place::exec(){
 
-    return execGTPAction(GTPActionId_, true, object_);
+    //move the arm
+    pr2motion::Arm_Right_MoveToQGoalGoal goalQ;
+    goalQ.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+    goalQ.shoulder_pan_joint = -1.952888;
+    goalQ.shoulder_lift_joint = -0.095935;
+    goalQ.upper_arm_roll_joint = -0.601572;
+    goalQ.elbow_flex_joint = -1.600124;
+    goalQ.forearm_roll_joint = 0.018247;
+    goalQ.wrist_flex_joint = -0.432897;
+    goalQ.wrist_roll_joint = -1.730082;\
+    connector_->PR2motion_arm_right_Q_->sendGoal(goalQ);
+    connector_->rightArmMoving_ = true;
+    ROS_INFO("[action_manager] Waiting for arms move");
+    bool finishedBeforeTimeout = connector_->PR2motion_arm_right_Q_->waitForResult(ros::Duration(connector_->waitActionServer_));
+    connector_->rightArmMoving_ = false;
+    if (!finishedBeforeTimeout){
+       ROS_INFO("Action PR2 go to Q did not finish before the time out.");
+    }
+
+    //place the tape
+    moveGripper(0, true); //open
+    RemoveFromHand(object_);
+
+    return true;
+
+    //return execGTPAction(GTPActionId_, true, object_);
 }
 
 /**
@@ -148,6 +174,17 @@ bool Place::post(){
     fact.property = "isOn";
     fact.targetId = support_;
     effects.push_back(fact);
+
+    std::vector<std::string> supportLocations;
+    std::string locationTopic = "/environment/locations/" + support_;
+    connector_->node_.getParam(locationTopic, supportLocations);
+    for(std::vector<std::string>::iterator itl = supportLocations.begin(); itl != supportLocations.end(); itl++){
+        fact.subjectId = object_;
+        fact.property = "isAt";
+        fact.targetId = *itl;
+        effects.push_back(fact);
+    }
+
     addFactsToDB(effects);
 
 

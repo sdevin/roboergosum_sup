@@ -1,6 +1,7 @@
 ---
 action_manager:
     shouldUseRightHand: true
+    shouldExecTraj: false
     nbPlanMaxGTP: 3
     gripperJoint:
         right: 'pr2r_gripper_joint'
@@ -19,9 +20,9 @@ action_manager:
             z_rot: 0.0
             w_rot: 1.0
         SECOND_LOC:
-            x: 4.6
-            y: 5.1
+            x: 5.3
+            y: 4.2
             x_rot: 0.0
             y_rot: 0.0
-            z_rot: 0.0
-            w_rot: 1.0
+            z_rot: 1.0
+            w_rot: 0.0

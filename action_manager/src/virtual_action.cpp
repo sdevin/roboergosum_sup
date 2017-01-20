@@ -268,52 +268,56 @@ bool VirtualAction::execGTPAction(int GTPActionId, bool shouldOpen, std::string 
 */
 bool VirtualAction::executeTrajectory(int GTPActionId, int actionSubId, int armId){
 
-   gtp_ros_msg::requestGoal goal;
-   goal.req.requestType = "load";
-   goal.req.loadAction.actionId = GTPActionId;
-   goal.req.loadAction.alternativeId = 0;
-   goal.req.loadSubTraj = actionSubId;
+   if(connector_->shouldExecTraj_){
 
-   connector_->acGTP_->sendGoal(goal);
-   bool finishedBeforeTimeout = connector_->acGTP_->waitForResult(ros::Duration(connector_->waitActionServer_));
+       gtp_ros_msg::requestGoal goal;
+       goal.req.requestType = "load";
+       goal.req.loadAction.actionId = GTPActionId;
+       goal.req.loadAction.alternativeId = 0;
+       goal.req.loadSubTraj = actionSubId;
 
-   if (finishedBeforeTimeout){
-     if(armId == 0){//right arm
-        pr2motion::Arm_Right_MoveGoal arm_goal_right;
-        arm_goal_right.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
-        arm_goal_right.path_mode.value=pr2motion::pr2motion_PATH_MODE::pr2motion_PATH_PORT;
-        connector_->rightArmMoving_ = true;
-        connector_->PR2motion_arm_right_->sendGoal(arm_goal_right,  boost::bind(&VirtualAction::moveRightArm, this, _1, _2),
-                                                   Client_Right_Arm::SimpleActiveCallback(),  Client_Right_Arm::SimpleFeedbackCallback());
-        while(connector_->rightArmMoving_ == true){
-            //wait for preempted request or end of the action
-            if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_ ){
-                connector_->PR2motion_arm_right_->cancelGoal();
-                return false;
+       connector_->acGTP_->sendGoal(goal);
+       bool finishedBeforeTimeout = connector_->acGTP_->waitForResult(ros::Duration(connector_->waitActionServer_));
+
+       if (finishedBeforeTimeout){
+         if(armId == 0){//right arm
+            pr2motion::Arm_Right_MoveGoal arm_goal_right;
+            arm_goal_right.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+            arm_goal_right.path_mode.value=pr2motion::pr2motion_PATH_MODE::pr2motion_PATH_PORT;
+            connector_->rightArmMoving_ = true;
+            connector_->PR2motion_arm_right_->sendGoal(arm_goal_right,  boost::bind(&VirtualAction::moveRightArm, this, _1, _2),
+                                                       Client_Right_Arm::SimpleActiveCallback(),  Client_Right_Arm::SimpleFeedbackCallback());
+            while(connector_->rightArmMoving_ == true){
+                //wait for preempted request or end of the action
+                if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_ ){
+                    connector_->PR2motion_arm_right_->cancelGoal();
+                    return false;
+                }
             }
-        }
-        connector_->rightArmPose_ = "unknown";
-     }else{
-        pr2motion::Arm_Left_MoveGoal arm_goal_left;
-        arm_goal_left.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
-        arm_goal_left.path_mode.value=pr2motion::pr2motion_PATH_MODE::pr2motion_PATH_PORT;
-        connector_->leftArmMoving_ = true;
-        connector_->PR2motion_arm_left_->sendGoal(arm_goal_left,  boost::bind(&VirtualAction::moveLeftArm, this, _1, _2),
-                                                   Client_Left_Arm::SimpleActiveCallback(),  Client_Left_Arm::SimpleFeedbackCallback());
-        while(connector_->leftArmMoving_ == true){
-            //wait for preempted request or end of the action
-            if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
-                connector_->PR2motion_arm_left_->cancelGoal();
-                return false;
+            connector_->rightArmPose_ = "unknown";
+         }else{
+            pr2motion::Arm_Left_MoveGoal arm_goal_left;
+            arm_goal_left.traj_mode.value=pr2motion::pr2motion_TRAJ_MODE::pr2motion_TRAJ_GATECH;
+            arm_goal_left.path_mode.value=pr2motion::pr2motion_PATH_MODE::pr2motion_PATH_PORT;
+            connector_->leftArmMoving_ = true;
+            connector_->PR2motion_arm_left_->sendGoal(arm_goal_left,  boost::bind(&VirtualAction::moveLeftArm, this, _1, _2),
+                                                       Client_Left_Arm::SimpleActiveCallback(),  Client_Left_Arm::SimpleFeedbackCallback());
+            while(connector_->leftArmMoving_ == true){
+                //wait for preempted request or end of the action
+                if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
+                    connector_->PR2motion_arm_left_->cancelGoal();
+                    return false;
+                }
             }
-        }
-        connector_->leftArmPose_ = "unknown";
+            connector_->leftArmPose_ = "unknown";
 
-     }
-   }
-   else{
-    ROS_INFO("[action_manager] Failed to execute the trajectory: GTP load did not finish before the time out.");
-    return false;
+         }
+       }
+       else{
+        ROS_INFO("[action_manager] Failed to execute the trajectory: GTP load did not finish before the time out.");
+        return false;
+       }
+
    }
 
    return true;
@@ -328,57 +332,61 @@ bool VirtualAction::executeTrajectory(int GTPActionId, int actionSubId, int armI
 */
 bool VirtualAction::moveGripper(int armId, bool open){
 
-    bool finishedBeforeTimeout;
-    if(armId == 0){//right arm
-       pr2motion::Gripper_Right_OperateGoal gripper_goal;
-       if(open){
-           gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_OPEN;
-       }else{
-           gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_CLOSE;
-       }
-       connector_->rightGripperMoving_ = true;
-       connector_->PR2motion_gripper_right_->sendGoal(gripper_goal,  boost::bind(&VirtualAction::moveRightGripper, this, _1, _2),
-                                                  Client_Right_Gripper::SimpleActiveCallback(),  Client_Right_Gripper::SimpleFeedbackCallback());
-       while(connector_->rightGripperMoving_ == true){
-           //wait for preempted request or end of the action
-           if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
-               connector_->PR2motion_gripper_right_->cancelGoal();
-               return false;
+    if(connector_->shouldExecTraj_){
+
+        bool finishedBeforeTimeout;
+        if(armId == 0){//right arm
+           pr2motion::Gripper_Right_OperateGoal gripper_goal;
+           if(open){
+               gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_OPEN;
+           }else{
+               gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_CLOSE;
            }
-       }
-       if(open){
-           connector_->gripperRightOpen_ = true;
-       }else{
-            connector_->gripperRightOpen_ = false;
-            if(!simu_){
-                gripperEmpty_  = isGripperEmpty("right");
-            }
-       }
-    }else{
-       pr2motion::Gripper_Left_OperateGoal gripper_goal;
-       if(open){
-           gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_OPEN;
-       }else{
-           gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_CLOSE;
-       }
-       connector_->leftGripperMoving_ = true;
-       connector_->PR2motion_gripper_left_->sendGoal(gripper_goal,  boost::bind(&VirtualAction::moveLeftGripper, this, _1, _2),
-                                                  Client_Left_Gripper::SimpleActiveCallback(),  Client_Left_Gripper::SimpleFeedbackCallback());
-       while(connector_->leftGripperMoving_ == true){
-           //wait for preempted request or end of the action
-           if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
-               connector_->PR2motion_gripper_left_->cancelGoal();
-               return false;
+           connector_->rightGripperMoving_ = true;
+           connector_->PR2motion_gripper_right_->sendGoal(gripper_goal,  boost::bind(&VirtualAction::moveRightGripper, this, _1, _2),
+                                                      Client_Right_Gripper::SimpleActiveCallback(),  Client_Right_Gripper::SimpleFeedbackCallback());
+           while(connector_->rightGripperMoving_ == true){
+               //wait for preempted request or end of the action
+               if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
+                   connector_->PR2motion_gripper_right_->cancelGoal();
+                   return false;
+               }
            }
-       }
-       if(open){
-           connector_->gripperLeftOpen_ = true;
-       }else{
-            connector_->gripperLeftOpen_ = false;
-            if(!simu_){
-                gripperEmpty_  = isGripperEmpty("left");
-            }
-       }
+           if(open){
+               connector_->gripperRightOpen_ = true;
+           }else{
+                connector_->gripperRightOpen_ = false;
+                if(!simu_){
+                    gripperEmpty_  = isGripperEmpty("right");
+                }
+           }
+        }else{
+           pr2motion::Gripper_Left_OperateGoal gripper_goal;
+           if(open){
+               gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_OPEN;
+           }else{
+               gripper_goal.goal_mode.value=pr2motion::pr2motion_GRIPPER_MODE::pr2motion_GRIPPER_CLOSE;
+           }
+           connector_->leftGripperMoving_ = true;
+           connector_->PR2motion_gripper_left_->sendGoal(gripper_goal,  boost::bind(&VirtualAction::moveLeftGripper, this, _1, _2),
+                                                      Client_Left_Gripper::SimpleActiveCallback(),  Client_Left_Gripper::SimpleFeedbackCallback());
+           while(connector_->leftGripperMoving_ == true){
+               //wait for preempted request or end of the action
+               if(connector_->action_server_->isPreemptRequested() || connector_->stopOrder_){
+                   connector_->PR2motion_gripper_left_->cancelGoal();
+                   return false;
+               }
+           }
+           if(open){
+               connector_->gripperLeftOpen_ = true;
+           }else{
+                connector_->gripperLeftOpen_ = false;
+                if(!simu_){
+                    gripperEmpty_  = isGripperEmpty("left");
+                }
+           }
+        }
+
     }
 
 

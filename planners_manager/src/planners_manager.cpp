@@ -140,6 +140,16 @@ void PlannersManager::setEnvironment(){
         fact.property = "isOn";
         fact.targetId = listSupports[nbChosen];
         facts.push_back(fact);
+        //we add isAt facts
+        std::vector<std::string> supportLocations;
+        std::string locationTopic = "/environment/locations/" + listSupports[nbChosen];
+        node_->getParam(locationTopic, supportLocations);
+        for(std::vector<std::string>::iterator itl = supportLocations.begin(); itl != supportLocations.end(); itl++){
+            fact.subjectId = *it;
+            fact.property = "isAt";
+            fact.targetId = *itl;
+            facts.push_back(fact);
+        }
     }
 
 
@@ -252,7 +262,7 @@ void PlannersManager::resetDB(){
     facts.push_back(fact);
     fact.subjectId = "HERAKLES_HUMAN1";
     fact.property = "type";
-    fact.targetId = "robot";
+    fact.targetId = "human";
     facts.push_back(fact);
     fact.subjectId = "GREEN_TRASHBIN";
     fact.property = "color";
@@ -313,6 +323,18 @@ void PlannersManager::resetDB(){
     fact.subjectId = "PR2_ROBOT";
     fact.property = "isReachableBy";
     fact.targetId = "HERAKLES_HUMAN1";
+    facts.push_back(fact);
+    fact.subjectId = "GREEN_TRASHBIN";
+    fact.property = "isAt";
+    fact.targetId = "ROBOT_LOC";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TRASHBIN";
+    fact.property = "isAt";
+    fact.targetId = "HUMAN_LOC";
+    facts.push_back(fact);
+    fact.subjectId = "BLUE_TRASHBIN";
+    fact.property = "isAt";
+    fact.targetId = "SECOND_LOC";
     facts.push_back(fact);
 
     ros::ServiceClient client_set = node_->serviceClient<toaster_msgs::SetInfoDB>("database_manager/set_info");

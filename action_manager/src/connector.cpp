@@ -19,6 +19,7 @@ Connector::Connector(){
     node_.getParam("/entities/locations", locationsList_);
     node_.getParam("/roboergosum/waitActionServer", waitActionServer_);
     node_.getParam("/action_manager/nbPlanMaxGTP", nbPlanMax_);
+    node_.getParam("action_manager/shouldExecTraj", shouldExecTraj_);
     node_.getParam("roboergosum/humanNoHandover", humanNoHandover_);
 
     previousGTPId_ = -1;

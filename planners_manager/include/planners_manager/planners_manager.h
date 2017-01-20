@@ -34,6 +34,7 @@
 
 #include "BP_experiment/StateReward.h"
 #include "BP_experiment/ExpertsActiv.h"
+#include "BP_experiment/StatePred.h"
 #include "BP_experiment/Actions.h"
 
 

@@ -20,6 +20,8 @@ std::vector<std::string> taskObjects, taskContainers;
 std::string robotName, humanName;
 std::string humanArea, middleArea, robotArea;
 std::string expertsMode;
+bool firstLoop, actionPossible, shouldExecTraj;
+float pred_error;
 
 /**
  * \brief Choose an action to be perform by the human
@@ -490,6 +492,104 @@ void initRewardFacts(){
     }
 }
 
+/**
+ * \brief Say if there is a human action to do
+ * @return true if there is a human action to do
+ * */
+bool isHumanAction(){
+
+    if(hasHATPPlan){
+        for(std::vector<roboergosum_msgs::Action>::iterator it = hatpPlan.actions.begin(); it != hatpPlan.actions.end(); it++){
+            if(it->actors[0] == humanName && !pm_->isIntInVector(it->id, executedActions)){
+                bool linksOk = true;
+                for(std::vector<roboergosum_msgs::Link>::iterator itl = hatpPlan.links.begin(); itl != hatpPlan.links.end(); itl++){
+                    if(itl->following == it->id && !pm_->isIntInVector(itl->origin, executedActions)){
+                        linksOk = false;
+                        break;
+                    }
+                }
+                if(linksOk){
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * \brief Say if the action is possible or not taking the current world state
+ * @param action the action to test
+ * @return true if the action is possible
+ * */
+bool getPossibleAction(roboergosum_msgs::Action action){
+
+    std::vector<toaster_msgs::Fact> precs;
+
+    if(action.name == "wait"){
+        return isHumanAction();
+    }else if(action.name == "pick"){
+        toaster_msgs::Fact fact;
+        fact.subjectId = action.parameters[0];
+        fact.property = "isReachableBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+        fact.subjectId = "NULL";
+        fact.property = "isHoldBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+    }else if(action.name == "place"){
+        toaster_msgs::Fact fact;
+        fact.subjectId = action.parameters[1];
+        fact.property = "isReachableBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+        fact.subjectId = action.parameters[0];
+        fact.property = "isHoldBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+    }else if(action.name == "drop"){
+        toaster_msgs::Fact fact;
+        fact.subjectId = action.parameters[0];
+        fact.property = "isHoldBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+    }else if(action.name == "navigate"){
+        return true;
+    }else if(action.name == "give"){
+        toaster_msgs::Fact fact;
+        fact.subjectId = action.parameters[0];
+        fact.property = "isHoldBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+        fact.subjectId = "NULL";
+        fact.property = "isHoldBy";
+        fact.targetId = humanName;
+        precs.push_back(fact);
+    }else if(action.name == "grab"){
+        toaster_msgs::Fact fact;
+        fact.subjectId = action.parameters[0];
+        fact.property = "isHoldBy";
+        fact.targetId = humanName;
+        precs.push_back(fact);
+        fact.subjectId = "NULL";
+        fact.property = "isHoldBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+        fact.subjectId = action.parameters[1];
+        fact.property = "isReachableBy";
+        fact.targetId = robotName;
+        precs.push_back(fact);
+    }else{
+        ROS_WARN("[planners_manager] Unknown action: %s", action.name.c_str());
+        return false;
+    }
+
+    //check if the preconditions are in the robot knowledge
+    return pm_->AreFactsInDB(precs);
+}
+
 
 /**
  * \brief Main function
@@ -512,6 +612,14 @@ int main (int argc, char **argv)
   node_->getParam("environment/middleArea", middleArea);
   node_->getParam("environment/robotArea", robotArea);
   node_->getParam("roboergosum/expertsMode", expertsMode);
+  node_->getParam("action_manager/shouldExecTraj", shouldExecTraj);
+
+  //set the seed
+  int seed;
+  node_->getParam("roboergosum/seed", expertsMode);
+  srand(seed);
+
+  firstLoop = true;
 
   PlannersManager pm(&node);
   pm_ = &pm;
@@ -519,8 +627,9 @@ int main (int argc, char **argv)
   initRewardFacts();
   initObjects();
 
-  ros::Publisher statereward_pub = node.advertise<BP_experiment::StateReward>("/bp_experiment/statereward", 1);
+  ros::Publisher statereward_pub = node.advertise<BP_experiment::StateReward>("/bp_experiment/premetacontroller/statereward", 1);
   ros::Publisher hatp_pub = node.advertise<BP_experiment::Actions>("/bp_experiment/goaldirectedAction", 1);
+  ros::Publisher pred_pub = node.advertise<BP_experiment::StatePred>("/bp_experiment/pmc/MB/sp", 1);
 
   actionlib::SimpleActionClient<roboergosum_msgs::ActionManagerAction> actionClient("roboergosum/action_manager", true);
   actionClient.waitForServer();
@@ -528,12 +637,16 @@ int main (int argc, char **argv)
   ROS_INFO("[planners_manager] planners_manager ready");
 
   while (node.ok()) {
+
+      /** *********************ENV GESTION AND WS PUBLISHING*****************************/
      //we reset the environment if needed
      if(pm_->needEnvReset_){
         pm_->setEnvironment();
         hasHATPPlan = false;
         executedActions.clear();
-        ros::Duration(2.0).sleep();
+        if(shouldExecTraj){
+            ros::Duration(2.0).sleep();
+        }
      }
 
      //we publish the world state and the previous reward
@@ -544,6 +657,13 @@ int main (int argc, char **argv)
      msg_state.reward = reward;
      statereward_pub.publish(msg_state);
 
+     //we publish the prediction error
+     BP_experiment::StatePred msg_pred;
+     msg_pred.pred_error = pred_error;
+     pred_pub.publish(msg_pred);
+
+
+     /** *********************EXPERT CALL*****************************/
      std::string expertToCall;
      //we ask to the metacontroller which expert to call (if in both mode)
      if(expertsMode == "both"){
@@ -563,9 +683,16 @@ int main (int argc, char **argv)
      roboergosum_msgs::Action action;
      if(expertToCall == "mf"){
          BP_experiment::Actions MFanswer;
-         MFanswer = *(ros::topic::waitForMessage<BP_experiment::Actions>("bp_experiment/habitualAction",ros::Duration(1)));
+         MFanswer = *(ros::topic::waitForMessage<BP_experiment::Actions>("/bp_experiment/metacontroller/decidedAction",ros::Duration(1)));
          action = pm_->getActionFromId(MFanswer.actionID);
          idAction = MFanswer.actionID;
+         ros::Time now = ros::Time::now();
+         ros::Duration t = now - pm_->nodeStartTime_;
+         float time = t.toSec();
+         pm_->fileLogHATP_ << time << " " << pm_->nbActions_ << " 0.0 " << "MF" <<std::endl;
+
+         //compute the predicion for the action (is it possible or not)
+         actionPossible = getPossibleAction(action);
      }else if(expertToCall == "hatp"){
         if(!hasHATPPlan){
             executedActions.clear();
@@ -575,8 +702,13 @@ int main (int argc, char **argv)
                 hatpPlan = hatpRequest.second;
                 hasHATPPlan = true;
             }else{
-                ROS_WARN("HATP did not find a plan for the current situatuion");
+                ROS_WARN("HATP did not find a plan for the current situation");
             }
+        }else{
+            ros::Time now = ros::Time::now();
+            ros::Duration t = now - pm_->nodeStartTime_;
+            float time = t.toSec();
+            pm_->fileLogHATP_ << time << " " << pm_->nbActions_ << " 0.0 " << "ALREADY_PLAN" <<std::endl;
         }
         //then we get the corresponding action
         action = getNextHATP();
@@ -595,8 +727,10 @@ int main (int argc, char **argv)
             }
         }
         hatp_pub.publish(HATPAction);
+        actionPossible = true;
      }
 
+     /** *********************ACTION EXECUTION*****************************/
      bool humanActionNeeded = false;
      std::string state;
      //if the return action is a wait action we wait 2 seconds
@@ -635,6 +769,11 @@ int main (int argc, char **argv)
              }else if(action.name == "navigate"){
                  pm_->robotPose_ = action.parameters[0];
              }
+             if(actionPossible){
+                 pred_error = 0.0;
+             }else{
+                 pred_error = 1.0;
+             }
          }else{
              if(actionClient.getResult()->state == "PREC"){
                  state = "NO_EXEC";
@@ -648,6 +787,11 @@ int main (int argc, char **argv)
                  actionToBlockHATP = action;
                  hasHATPPlan = false;
              }
+             if(actionPossible){
+                 pred_error = 1.0;
+             }else{
+                 pred_error = 0.0;
+             }
          }
      }
      pm_->nbActions_ ++;
@@ -658,6 +802,8 @@ int main (int argc, char **argv)
      float time = t.toSec();
      pm_->fileLogRobotActions_ << time  << " " << pm_->nbActions_ << " " << expertToCall << " " << idAction << " " << state << std::endl;
 
+
+     /** *********************HUMAN ACTION EXECUTION*****************************/
      //we execute human action if needed and update HATP plan if one
      if(humanActionNeeded){
         std::pair<bool, roboergosum_msgs::Action> humanAction = getHumanAction();
@@ -688,8 +834,10 @@ int main (int argc, char **argv)
                 if(hasHATPPlan){
                    updateHATPPlan(humanAction.second);
                    if(hasHATPPlan){
+                       pred_error = 0.0;
                        humanState = "EXPECTED";
                    }else{
+                       pred_error = 1.0;
                        humanState = "UNEXPECTED";
                    }
                 }else{
@@ -707,14 +855,23 @@ int main (int argc, char **argv)
         }else{
             //if hatp was waiting for an action and the human does not perform it we need a new plan
             if(action.name == "wait" && expertToCall == "hatp"){
+                pred_error = 1.0;
                 toBlockHATP = true;
                 roboergosum_msgs::Action actionToBlock;
                 actionToBlock.name = "humanAction";
                 actionToBlockHATP = actionToBlock;
                 hasHATPPlan = false;
+            }else if(action.name == "wait"){
+                if(actionPossible){
+                    pred_error = 1.0;
+                }else{
+                    pred_error = 0.0;
+                }
             }
         }
      }
+
+     /** *********************REWARD*****************************/
 
      //we compute the reward
      //the robot needs to perform a wait action in the final state to get a reward
@@ -724,6 +881,9 @@ int main (int argc, char **argv)
      }else{
          reward = 0.0;
      }
+
+
+     firstLoop = false;
 
      ros::spinOnce();
      loop_rate.sleep();

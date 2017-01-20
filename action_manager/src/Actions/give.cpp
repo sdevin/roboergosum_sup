@@ -49,6 +49,10 @@ bool Give::preconditions(){
     fact.property = "isHoldBy";
     fact.targetId = robotName_;
     precsTocheck.push_back(fact);
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = receiver_;
+    precsTocheck.push_back(fact);
     fact.subjectId = receiver_;
     fact.property = "isReachableBy";
     fact.targetId = robotName_;

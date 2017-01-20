@@ -134,6 +134,10 @@ bool Pick::post(){
     fact.property = "isOn";
     fact.targetId = "NULL";
     effects.push_back(fact);
+    fact.subjectId = object_;
+    fact.property = "isAt";
+    fact.targetId = "NULL";
+    effects.push_back(fact);
     addFactsToDB(effects);
 
     return true;

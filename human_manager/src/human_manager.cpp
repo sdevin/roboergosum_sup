@@ -55,6 +55,14 @@ void HumanManager::humanPick(std::string agent, std::string object){
     fact.property = "isHoldBy";
     fact.targetId = agent;
     effects.push_back(fact);
+    fact.subjectId = object;
+    fact.property = "isOn";
+    fact.targetId = "NULL";
+    effects.push_back(fact);
+    fact.subjectId = object;
+    fact.property = "isAt";
+    fact.targetId = "NULL";
+    effects.push_back(fact);
     addFactsToDB(effects);
 }
 
@@ -148,6 +156,16 @@ void HumanManager::humanPlace(std::string agent, std::string object, std::string
     fact.property = "isOn";
     fact.targetId = support;
     effects.push_back(fact);
+
+    std::vector<std::string> supportLocations;
+    std::string locationTopic = "/environment/locations/" + support;
+    node_->getParam(locationTopic, supportLocations);
+    for(std::vector<std::string>::iterator itl = supportLocations.begin(); itl != supportLocations.end(); itl++){
+        fact.subjectId = object;
+        fact.property = "isAt";
+        fact.targetId = *itl;
+        effects.push_back(fact);
+    }
     addFactsToDB(effects);
 }
 

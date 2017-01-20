@@ -9,8 +9,9 @@ roboergosum:
     simu: true
     waitActionServer: 10.0
     humanRightHand: 'rightHand'
-    humanNoHandover: false
-    humanLazy: false
-    expertsMode: 'hatp' #hatp, mf or both
+    humanNoHandover: true
+    humanLazy: true
+    expertsMode: 'both' #hatp, mf or both
     HATPMethodName: 'ThrowAll'
     idExp: "999"
+    seed: "123456"

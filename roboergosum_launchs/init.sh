@@ -29,7 +29,7 @@ orientation:
 rosservice call /toaster_simu/add_entity "{id: 'BLUE_TRASHBIN', name: 'BLUE_TRASHBIN', type: 'object', ownerId: ''}"
 rosservice call /toaster_simu/set_entity_pose "{id: 'BLUE_TRASHBIN', ownerId: '', type: 'object', pose:
 {position:
-  {x: 5.1,
+  {x: 6.1,
   y: 5.1,
   z: 0.751},
 orientation:
@@ -135,7 +135,7 @@ rosservice call /toaster_simu/add_entity "{id: 'HERAKLES_HUMAN1', name: 'HERAKLE
 rosservice call /toaster_simu/set_entity_pose "{id: 'HERAKLES_HUMAN1', ownerId: '', type: 'human', pose:
 {position:
   {x: 5.5,
-  y: 4.2,
+  y: 5.5,
   z: 0.0},
 orientation:
   {x: 0.0,
@@ -148,7 +148,7 @@ rosservice call /toaster_simu/add_entity "{id: 'rightHand', name: 'rightHand', t
 rosservice call /toaster_simu/set_entity_pose "{id: 'rightHand', ownerId: 'HERAKLES_HUMAN1', type: 'joint', pose:
 {position:
   {x: 5.6,
-  y: 4.55,
+  y: 5.5,
   z: 1.0},
 orientation:
   {x: 0.0,
@@ -160,7 +160,7 @@ rosservice call /toaster_simu/add_entity "{id: 'base', name: 'base', type: 'join
 rosservice call /toaster_simu/set_entity_pose "{id: 'base', ownerId: 'HERAKLES_HUMAN1', type: 'joint', pose:
 {position:
   {x: 5.5,
-  y: 4.2,
+  y: 5.5,
   z: 0.0},
 orientation:
   {x: 0.0,
@@ -172,7 +172,7 @@ rosservice call /toaster_simu/add_entity "{id: 'head', name: 'head', type: 'join
 rosservice call /toaster_simu/set_entity_pose "{id: 'head', ownerId: 'HERAKLES_HUMAN1', type: 'joint', pose:
 {position:
   {x: 5.5,
-  y: 4.2,
+  y: 5.5,
   z: 1.5},
 orientation:
   {x: 0.0,
@@ -211,11 +211,11 @@ rosservice call /area_manager/add_area "myArea:
     ray: 2.0
     poly:
       points:
-      - {x: -0.1, y: 1.2, z: 0}
+      - {x: -0.1, y: 2.2, z: 0}
       - {x: -0.1, y: -0.4, z: 0}
-      - {x: 1.2, y: -0.4, z: 0}
-      - {x: 1.2, y: 1.2, z: 0}
-      - {x: -0.1, y: 1.2, z: 0}
+      - {x: 2.2, y: -0.4, z: 0}
+      - {x: 2.2, y: 2.2, z: 0}
+      - {x: -0.1, y: 2.2, z: 0}
     insideEntities: [0]"
 
 rosservice call /area_manager/add_area "myArea:

@@ -41,3 +41,25 @@ environment:
             y: 4.6
             z: 0.72
             rotation: false
+    locations:
+        PLACEMAT_1:
+            - 'ROBOT_LOC'
+        PLACEMAT_2:
+            - 'ROBOT_LOC'
+        PLACEMAT_3:
+            - 'ROBOT_LOC'
+            - 'HUMAN_LOC'
+        PLACEMAT_4:
+            - 'ROBOT_LOC'
+            - 'HUMAN_LOC'
+            - 'SECOND_LOC'
+        PLACEMAT_5:
+            - 'ROBOT_LOC'
+            - 'HUMAN_LOC'
+            - 'SECOND_LOC'
+        PLACEMAT_6:
+            - 'HUMAN_LOC'
+            - 'SECOND_LOC'
+        PLACEMAT_7:
+            - 'HUMAN_LOC'
+            - 'SECOND_LOC'

@@ -47,6 +47,10 @@ bool Grab::preconditions(){
     fact.property = "isHoldBy";
     fact.targetId = giver_;
     precsTocheck.push_back(fact);
+    fact.subjectId = "NULL";
+    fact.property = "isHoldBy";
+    fact.targetId = robotName_;
+    precsTocheck.push_back(fact);
     fact.subjectId = giver_;
     fact.property = "isReachableBy";
     fact.targetId = robotName_;

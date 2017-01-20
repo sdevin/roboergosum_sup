@@ -81,21 +81,23 @@ bool Navigate::exec(){
     connector_->node_.getParam(wRotParam, w_rot);
 
     //then we call move base
-    move_base_msgs::MoveBaseGoal goal;
-    goal.target_pose.header.frame_id = "map";
-    goal.target_pose.header.stamp = ros::Time::now();
-    goal.target_pose.pose.position.x = x;
-    goal.target_pose.pose.position.y = y;
-    goal.target_pose.pose.orientation.x = x_rot;
-    goal.target_pose.pose.orientation.y = y_rot;
-    goal.target_pose.pose.orientation.z = z_rot;
-    goal.target_pose.pose.orientation.w = w_rot;
-    client_->sendGoal(goal);
-    ROS_INFO("[action_manager] Move base goal sent %f %f %f %f %f %f",goal.target_pose.pose.position.x, goal.target_pose.pose.position.y, goal.target_pose.pose.orientation.x , goal.target_pose.pose.orientation.y , goal.target_pose.pose.orientation.z , goal.target_pose.pose.orientation.w);
-    client_->waitForResult(ros::Duration(300.0));
-    if(client_->getState() != actionlib::SimpleClientGoalState::SUCCEEDED){
-        ROS_WARN("[action_manager] Move base failed in execution");
-        return false;
+    if(connector_->shouldExecTraj_){
+        move_base_msgs::MoveBaseGoal goal;
+        goal.target_pose.header.frame_id = "map";
+        goal.target_pose.header.stamp = ros::Time::now();
+        goal.target_pose.pose.position.x = x;
+        goal.target_pose.pose.position.y = y;
+        goal.target_pose.pose.orientation.x = x_rot;
+        goal.target_pose.pose.orientation.y = y_rot;
+        goal.target_pose.pose.orientation.z = z_rot;
+        goal.target_pose.pose.orientation.w = w_rot;
+        client_->sendGoal(goal);
+        ROS_INFO("[action_manager] Move base goal sent %f %f %f %f %f %f",goal.target_pose.pose.position.x, goal.target_pose.pose.position.y, goal.target_pose.pose.orientation.x , goal.target_pose.pose.orientation.y , goal.target_pose.pose.orientation.z , goal.target_pose.pose.orientation.w);
+        client_->waitForResult(ros::Duration(300.0));
+        if(client_->getState() != actionlib::SimpleClientGoalState::SUCCEEDED){
+            ROS_WARN("[action_manager] Move base failed in execution");
+            return false;
+        }
     }
 
     return true;
@@ -111,6 +113,13 @@ bool Navigate::exec(){
  * */
 bool Navigate::post(){
 
+    //put at the exact pose
+    if(location_ == "ROBOT_LOC"){
+       system("rostopic pub /initialpose geometry_msgs/PoseWithCovarianceStamped '{ header: { frame_id: \"/map\" }, pose: { pose: { position: { x: 4.0, y: 4.2 }, orientation: { x: 0, y: 0, z: 0.0, w: 1.0 } }, covariance: [ 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] } }' & ");
+    }else if(location_ == "SECOND_LOC"){
+       system("rostopic pub /initialpose geometry_msgs/PoseWithCovarianceStamped '{ header: { frame_id: \"/map\" }, pose: { pose: { position: { x: 5.3, y: 4.2 }, orientation: { x: 0, y: 0, z: 1.0, w: 0.0 } }, covariance: [ 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853891945200942, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ] } }' & ");
+    }
+    ros::Duration(1.0).sleep();
 
     //add effects to the database
     std::vector<toaster_msgs::Fact> effects;
